@@ -102,9 +102,9 @@ function createUpload(wikiEditor){
 				* 当为iPad平台的情况下，文件名包含image并且小于7个字符的情况下，进行自动命名文件名
 				* 它的缺陷是它无法再判断是否上传过一样的文件了
 				* 它的默认的名字是 iamge.jpg 9个字符长度
-				* todo：简化到一个函数里面
+				* @done：简化到一个函数里面-直接交由isIOS6函数来处理
 				*/
-				if ((navigator.platform == "iPad" || navigator.platform == "iPhone") && file.name.indexOf("image")>-1 && file.name.length<11){
+				if (isIOS6(file.name)){
 					file.name=getTimeFileName(file_index);// SLBoat:引入新文件名
 				}				
 
@@ -374,7 +374,13 @@ function check_extension(file,uploader){
 			  // SLBoat:图片文档增加图标
        	 	  case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tif': case 'tiff': //pictures
        	 		file.group = "pic";
-       	 		file.li.type.addClass('picture');
+				// SLBoat:根据IOS6进行不同的图标展示
+				if (isIOS6(file.name){
+					// SLBoat:显示特制的ios6图标
+	       	 		file.li.type.addClass('picture_ios6');
+				}else{
+					file.li.type.addClass('picture');
+				}
             	break;
 			  case 'mov':
        	 		file.group = "mov";
@@ -510,6 +516,24 @@ function build(file){
 
     file.li.append('<div class="file-progress"><div class="file-progress-bar"></div><span class="file-progress-state"></span></div>'); 
     
+}
+
+/* 森亮号IOS6修改函数
+ * 作用：判断是否为IOS6配套
+ * 判断依据：
+                   1. 浏览器标识为iPad，或者iPhone
+				   2. 图片名称为image开头
+				   3. 图片名称小于11个字符
+ * 效果：当为IOS6的时候返回true
+ * 参数：传入文件名实际参数为file_name
+ */
+function isIOS6(file_name){
+	if (typeof(file_name)=="undefined")
+	{
+		file_name=""; // 未定义的时候得到空白-不认ios6
+	}
+	return true; //just for test
+	return (navigator.platform == "iPad" || navigator.platform == "iPhone") && file_name.indexOf("image")==0 && file_name.length<11
 }
 
 /* 森亮号IOS6修改函数
