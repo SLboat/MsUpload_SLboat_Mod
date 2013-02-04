@@ -375,7 +375,7 @@ function check_extension(file,uploader){
        	 	  case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tif': case 'tiff': //pictures
        	 		file.group = "pic";
 				// SLBoat:根据IOS6进行不同的图标展示
-				if (isIOS6(file.name){
+				if (isIOS6(file.name)){
 					// SLBoat:显示特制的ios6图标
 	       	 		file.li.type.addClass('picture_ios6');
 				}else{
