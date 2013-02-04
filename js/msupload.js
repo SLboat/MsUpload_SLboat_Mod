@@ -532,7 +532,7 @@ function isIOS6(file_name){
 	{
 		file_name=""; // 未定义的时候得到空白-不认ios6
 	}
-	return true; //just for test
+	// return true; //just for test
 	return (navigator.platform == "iPad" || navigator.platform == "iPhone") && file_name.indexOf("image")==0 && file_name.length<11
 }
 
