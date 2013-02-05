@@ -375,7 +375,7 @@ function check_extension(file,uploader){
        	 	  case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tif': case 'tiff': //pictures
        	 		file.group = "pic";
 				// SLBoat:根据IOS6进行不同的图标展示
-				if (isIOS6(file.name)){
+				if (isIOS6()){ // SLBoat:注意这里强制不检查文件名称
 					// SLBoat:显示特制的ios6图标
 	       	 		file.li.type.addClass('picture_ios6');
 				}else{
@@ -530,7 +530,7 @@ function build(file){
 function isIOS6(file_name){
 	if (typeof(file_name)=="undefined")
 	{
-		file_name=""; // 未定义的时候得到空白-不认ios6
+		file_name="image.jpg"; // 未定义的时候强制为默认名字-就认ios6
 	}
 	// return true; //just for test
 	return (navigator.platform == "iPad" || navigator.platform == "iPhone") && file_name.indexOf("image")==0 && file_name.length<11
