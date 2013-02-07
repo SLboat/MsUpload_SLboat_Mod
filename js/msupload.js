@@ -15,7 +15,7 @@ function createUpload(wikiEditor){
 		
 	if(wikiEditor==true){		
 		
-		//create upload button
+		// SLBoat:创建新版的上传按钮
 		var upload_tab = $(document.createElement("span")).attr('class','tab tab-msupload').prependTo('#wikiEditor-ui-toolbar .tabs');
 				
 		var upload_button = $(document.createElement("span")).attr({ 
@@ -29,7 +29,7 @@ function createUpload(wikiEditor){
 		var container_msu = 'upload_container';
 		$('#wikiEditor-ui-toolbar .tool .options').css('z-index', '2'); //headline dropdown
 	
-	}else{ //only standard editor
+	}else{ // SLBoat:创建经典的上传按钮
 		
 	  var upload_button = $(document.createElement("a")).attr({ 
       id: "upload_select",
@@ -558,7 +558,7 @@ function getTimeFileName(file_index){
 function autoaddkat(file_name){
 	var kat_mp3="[[分类:音频见识]]";
 	var kat_text="";
-	var file_extension=file.name.split('.').pop().toLowerCase();
+	var file_extension=file_name.split('.').pop().toLowerCase();
 	// SLBoat:增加月份见识
 	var now=new Date();
 	kat_mp3=kat_mp3+" [[分类:音频见识 " + now.getFullYear()+"年"+(now.getMonth()+1)+"月" + "]]";
