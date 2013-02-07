@@ -58,7 +58,7 @@ function createUpload(wikiEditor){
     		drop_element: 'upload_drop',
     		unique_names: false,
     		//multipart_params: {} ,     
-        	url : msu_vars.path+'/../../api.php', //用到了全局的变量
+        	url : msu_vars.path+'/../../api.php', // SLBoat:这就是负责上传的最终API
     		flash_swf_url : msu_vars.path+'/js/plupload/plupload.flash.swf',
     		silverlight_xap_url : msu_vars.path+'/js/plupload/plupload.silverlight.xap'
     		
@@ -77,7 +77,7 @@ function createUpload(wikiEditor){
     		status_div.html("<b>Debug</b> runtime: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop));
     		if(msu_vars.debugMode == 'false') status_div.hide(); //hide status if debug mode is disabled
 
-    		if(up.features.dragdrop && !isIOS6 ){ // SLBoat:支持拖放
+    		if(up.features.dragdrop && !isIOS6() ){ // SLBoat:支持拖放
 	        	// SLBoat: 增加了在IOS6上不需要显示这个，显示也没啥用
 	        	var upload_drop = $(document.createElement("div")).attr("id","upload_drop").html('<span class="drop_text">'+mw.msg('msu-dropzone')+'</span>').insertAfter(status_div); 
 	        	upload_drop.bind('dragover',function(event){
@@ -553,4 +553,22 @@ function getTimeFileName(file_index){
 	var timestr = now.getHours() + "." + now.getMinutes() + "." + now.getSeconds();
 	//得到最终的新文件名
 	return "slboat_ios6_" + datastr +"_" + timestr +"_" + file_index + file_ext
+}
+
+/* 森亮号IOS6修改函数
+* 作用：自动添加分类的备注里
+* 效果：输出原始注释+\n+分类
+* 例如：
+  ***********
+  ***森亮号航海见识上传***
+  ***[[分类:音频见识]]****
+* 参数：传入参数file_name文件名，file_comm原始备注
+*/
+function autoaddkat(file_name,file_comm){
+	file_extension=file.name.split('.').pop().toLowerCase();
+	if (file.extension=="mp3") //如果是音频见识文件
+	{
+
+	}
+
 }
