@@ -21,7 +21,7 @@ function createUpload(wikiEditor){
 		var upload_button = $(document.createElement("span")).attr({ 
 		     id: "upload_select",
 		     title: mw.msg('msu-button_title')
-		}).append('<img src="'+msu_vars.path+'/images/button_upload.gif">').appendTo(upload_tab); 
+		}).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo(upload_tab); 
 		
 		//create upload div  
     	var upload_container = $(document.createElement("div")).attr('id',"upload_container").insertAfter('#wikiEditor-ui-toolbar');
@@ -34,7 +34,7 @@ function createUpload(wikiEditor){
 	  var upload_button = $(document.createElement("a")).attr({ 
       id: "upload_select",
       title: mw.msg('msu-button_title')
-      }).append('<img src="'+msu_vars.path+'/images/button_upload.gif">').appendTo("#toolbar"); 
+      }).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo("#toolbar"); 
 	  
 	  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
 	  var container_msu = 'toolbar';
@@ -147,7 +147,7 @@ function createUpload(wikiEditor){
     		token: mw.user.tokens.get( 'editToken' ),
     		action:"upload", //这是传入的操作方式
     		ignorewarnings:true,
-    		comment:mw.msg('msu-comment'),  // SLBoat:注入了备注消息就在这里
+    		comment:mw.msg('msu-comment')+autoaddkat(file.name),  // SLBoat:注入了备注消息就在这里
     		format:"json"
     	}; //set multipart_params
     	$('#' + file.id + " div.file-progress-bar").progressbar({value: '1'});
@@ -363,7 +363,7 @@ function check_extension(file,uploader){
 		if(msu_vars.debugMode == 'true') console.log(file);
 		
         file.li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
-		file.extension = file.name.split('.').pop().toLowerCase(); // SLBoat:获得后缀类型
+		file.extension = file.name.split('.').pop().toLowerCase(); // SLBoat:获得后缀类型，看起来被附加到了一个新属性里哦
 
 		if($.inArray(file.extension, wgFileExtensions) != -1) { // SLBoat:有效文件类型
 		    
@@ -417,26 +417,18 @@ function check_extension(file,uploader){
       }//else
 }
 
-function check_file(filename,file_li){
+function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
 		 	
-          file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
-              		         
-          sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename], 
-        		function (result) {
-        				
+          file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");              		         
+          sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename],  // SLBoat:检查是否重复文件名
+			  function (result) {        				
         		warning = result.responseText.replace(/(<([^>]+)>)/ig,"");
-
-        		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {
-        			
+        		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {        			
         			file_li.warning.text(mw.msg('msu-upload_possible')).removeClass('small_warn');
-
-        		} else {
-        		
+        		} else {        		
                 	// errorhandling (string eventuell noch kuerzen)
-                	file_li.warning.html('<span class=\'small_warn\'>'+warning+'</span>');
-             
-                } //else
-       				
+                	file_li.warning.html('<span class=\'small_warn\'>'+warning+'</span>');             
+                } //else       				
         	});
 }
 
@@ -450,13 +442,11 @@ function file_error(file,error_text){
     file.li.click(function(e) { //bei klick li löschen
 	   file.li.fadeOut("slow");
 	})
-	
-	
+		
 }
 
 
-function build(file){
-   
+function build(file){ 
 
       //fileindexer
       //if(autoIndex){
@@ -548,7 +538,7 @@ function getTimeFileName(file_index){
 	//得到一个新的时间类
 	var now=new Date(); 
 	//获得日期串
-	var datastr = now.getFullYear()+"-"+now.getMonth()+"-"+now.getDate(); 
+	var datastr = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate(); 
 	//获得时间串
 	var timestr = now.getHours() + "." + now.getMinutes() + "." + now.getSeconds();
 	//得到最终的新文件名
@@ -557,18 +547,25 @@ function getTimeFileName(file_index){
 
 /* 森亮号IOS6修改函数
 * 作用：自动添加分类的备注里
-* 效果：输出原始注释+\n+分类
+* 效果：输出+\n+分类
 * 例如：
   ***********
   ***森亮号航海见识上传***
   ***[[分类:音频见识]]****
-* 参数：传入参数file_name文件名，file_comm原始备注
+* 参数：传入参数file_name文件名
+* 返回：分类信息或者空白信息
 */
-function autoaddkat(file_name,file_comm){
-	file_extension=file.name.split('.').pop().toLowerCase();
-	if (file.extension=="mp3") //如果是音频见识文件
+function autoaddkat(file_name){
+	var kat_mp3="[[分类:音频见识]]";
+	var kat_text="";
+	var file_extension=file.name.split('.').pop().toLowerCase();
+	// SLBoat:增加月份见识
+	var now=new Date();
+	kat_mp3=kat_mp3+" [[分类:音频见识 " + now.getFullYear()+"年"+(now.getMonth()+1)+"月" + "]]";
+	if (file_extension=="mp3") //如果是音频见识文件
 	{
-
+		kat_text = "\n"+kat_mp3; //加在最后面咯
 	}
-
+	// SLBoat:todo：增加图片见识？
+	return kat_text;
 }
