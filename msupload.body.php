@@ -14,14 +14,14 @@ if( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
-function wfMsUploadSaveKat($name,$kat) {
+function wfMsUploadSaveKat($name,$kat) { // SLBoat:修改类的玩意，看起来是
 
         global $wgContLang,$wgUser;
         
         $mediaString = strtolower( $wgContLang->getNsText( NS_FILE ) );
         
         $title = $mediaString.':'.$name;
-        $text = "\n[[".$kat."]]";
+        $text = "\n[[".$kat."]]"; // SLBoat:回车然后加上类别的玩意
 
         $wgEnableWriteAPI = true;    
         $params = new FauxRequest(array (
