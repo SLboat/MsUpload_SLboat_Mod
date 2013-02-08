@@ -383,7 +383,7 @@ function check_extension(file,uploader){
        	 		file.group = "mov";
              	break;
      		  case 'mp3': //音乐文件
-			    file.li.type.addClass('music");
+			    file.li.type.addClass('music');
 				break;
         	//case 'pdf':
             /* handle */
