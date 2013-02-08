@@ -147,7 +147,7 @@ function createUpload(wikiEditor){
     		token: mw.user.tokens.get( 'editToken' ),
     		action:"upload", //这是传入的操作方式
     		ignorewarnings:true,
-    		comment:mw.msg('msu-comment')+autoaddkat(file.name),  // SLBoat:注入了备注消息就在这里
+    		comment:mw.msg('msu-comment')+autoAddKat(file.name),  // SLBoat:注入了备注消息就在这里
     		format:"json"
     	}; //set multipart_params
     	$('#' + file.id + " div.file-progress-bar").progressbar({value: '1'});
@@ -534,14 +534,14 @@ function isIOS6(file_name){
 * 参数：传入参数file_index为所在的文件序号
 */
 function getTimeFileName(file_index){
-	if (typeof(file_index)=="undefined")
+	if (typeof(file_index) == "undefined")
 	{
-		file_index=0; // 未定义的时候得到0 
+		file_index = 0; // 未定义的时候得到0 
 	}
 	// 文件名后缀，暂时只处理jpg，因为ios6的相册都是jpg
-	var file_ext=".jpg"; 
+	var file_ext = ".jpg"; 
 	//得到一个新的时间类
-	var now=new Date(); 
+	var now = new Date(); 
 	//获得日期串
 	var datastr = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate(); 
 	//获得时间串
@@ -560,14 +560,31 @@ function getTimeFileName(file_index){
 * 参数：传入参数file_name文件名
 * 返回：分类信息或者空白信息
 */
-function autoaddkat(file_name){
-	var kat_mp3="[[分类:音频见识]]";
-	var kat_text="";
-	var file_extension=file_name.split('.').pop().toLowerCase();
-	// SLBoat:增加月份见识
-	var now=new Date();
-	kat_mp3=kat_mp3+" [[分类:音频见识 " + now.getFullYear()+"年"+(now.getMonth()+1)+"月" + "]]";
-	if (file_extension=="mp3") //如果是音频见识文件
+function autoAddKat(file_name){
+	var kat_mp3 = "[[分类:音频见识]]";
+	var kat_text = "";
+	var file_data_str = ""; //文件日期字符串
+	var file_extension = file_name.split('.').pop().toLowerCase();
+	var year,month; //月份
+	// SLBoat:尝试从文件读取日期
+	var file_data_arr = file_name.match(/(?:\D|^)(\d{2})(\d{2})(\d{2})_/); // SLBoat:匹配正则 [非数字]（年份2位）（月份2位）（日期2位）_
+	if (file_data_arr != null){
+		month=parseInt(file_data_arr[2]);
+		if (month>0 && month<=12) //必须是12之内的月份，没做月份
+		{
+			file_data_str = "20" + file_data_arr[1] + "年" + month +"月"; //过滤掉多位的月份
+		}		
+	}
+	// SLBoat:提取不到任何日期的时候
+	if (file_data_str == "") {//最坏的情况发生了，提取不到任何日期
+			// SLBoat:增加月份见识
+			if(msu_vars.debugMode == 'true') console.log ("slboat: 尝试对音频见识获取分类失败呢!");
+			var now = new Date();
+			file_data_str = now.getFullYear()+"年"+(now.getMonth()+1)+"月";
+		}
+	// SLBoat:尝试从文件名提取月份，如果顺利的话，如果不的话采取当前的月份
+	kat_mp3 = kat_mp3+" [[分类:音频见识 " + file_data_str+ "]]";
+	if (file_extension == "mp3") //如果是音频见识文件
 	{
 		kat_text = "\n"+kat_mp3; //加在最后面咯
 	}
