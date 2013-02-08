@@ -1,3 +1,7 @@
+森亮号大船修改版MsUpload，主要修改了
+* 修改了上传图标
+* 修改支持IOS6
+
 ##Start --------------------------------------- MsUpload
 ##if necessary
 #$wgEnableWriteAPI = true; //API

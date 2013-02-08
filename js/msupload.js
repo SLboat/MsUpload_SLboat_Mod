@@ -21,7 +21,7 @@ function createUpload(wikiEditor){
 		var upload_button = $(document.createElement("span")).attr({ 
 		     id: "upload_select",
 		     title: mw.msg('msu-button_title')
-		}).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo(upload_tab); 
+		}).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo(upload_tab);  // SLBoat:修改上传图片为透明的
 		
 		//create upload div  
     	var upload_container = $(document.createElement("div")).attr('id',"upload_container").insertAfter('#wikiEditor-ui-toolbar');
@@ -34,7 +34,7 @@ function createUpload(wikiEditor){
 	  var upload_button = $(document.createElement("a")).attr({ 
       id: "upload_select",
       title: mw.msg('msu-button_title')
-      }).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo("#toolbar"); 
+      }).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo("#toolbar"); // SLBoat:透明上传图片，尽管很少机会用到标准按钮
 	  
 	  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
 	  var container_msu = 'toolbar';
@@ -382,6 +382,9 @@ function check_extension(file,uploader){
 			  case 'mov':
        	 		file.group = "mov";
              	break;
+     		  case 'mp3': //音乐文件
+			    file.li.type.addClass('music");
+				break;
         	//case 'pdf':
             /* handle */
             //break;

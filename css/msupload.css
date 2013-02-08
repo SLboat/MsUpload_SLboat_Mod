@@ -81,6 +81,11 @@
   background: url(../images/document-image_ios6.png) no-repeat 0 0;
   }
 
+/* 引入制图员alex的音乐图标 */
+#upload_list .file .picture_music {
+  background: url(../images/document-music.png) no-repeat 0 0;
+  }
+
 #upload_list .file .document {
   background: url(../images/document.png) no-repeat 0 0;
 }
