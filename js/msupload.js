@@ -162,7 +162,7 @@ function createUpload(wikiEditor){
       		$('#' + file.id + ' div.file-progress-bar .ui-progressbar-value').removeClass('ui-corner-left');
       });
    
-     uploader.bind('Error', function(up, err) {
+     uploader.bind('Error', function(up, err) { // SLBoat:出错的时候进行回调处理
     		
         	$('#' + err.file.id + " span.file-warning")
         	.html("Error: " + err.code +", Message: " + err.message + (err.file ? ", File: " + err.file.name : ""));
@@ -425,7 +425,9 @@ function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
           file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");              		         
           sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename],  // SLBoat:检查是否重复文件名
 			  function (result) {        				
-        		warning = result.responseText.replace(/(<([^>]+)>)/ig,"");
+        		warning = result.responseText.replace(/(<([^>]+)>)/ig,""); // SLBoat:初次过滤的信息
+				// SLBoat:整理掉该死的strong返回玩意，alex见证
+				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt","]]"));
         		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {        			
         			file_li.warning.text(mw.msg('msu-upload_possible')).removeClass('small_warn');
         		} else {        		
