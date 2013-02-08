@@ -427,7 +427,7 @@ function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
 			  function (result) {        				
         		warning = result.responseText.replace(/(<([^>]+)>)/ig,""); // SLBoat:初次过滤的信息
 				// SLBoat:整理掉该死的strong返回玩意，alex见证
-				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt","]]"));
+				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt","]]");
         		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {        			
         			file_li.warning.text(mw.msg('msu-upload_possible')).removeClass('small_warn');
         		} else {        		
