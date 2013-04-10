@@ -354,8 +354,9 @@ function createUpload(wikiEditor){
 
 function add_gallery(){ //插入整个相册就在这里了，而这里将变成我们的插入一系列图片
 	gallery_text = ":[[Image:"; //第一个单个标签的左边部分
-	gallery_text += gallery_arr.join("]]<br />\n:[[Image:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
-	gallery_text +=']]<br />';//最后一个标签的右边部分
+	//去除BR标记，不再需要
+	gallery_text += gallery_arr.join("]]\n:[[Image:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
+	gallery_text +=']]';//最后一个标签的右边部分
 	msu_vorlage_insert(gallery_text,'\n','\n');  //插入头部和尾部
 }
 
