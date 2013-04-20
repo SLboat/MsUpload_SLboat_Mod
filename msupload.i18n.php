@@ -38,6 +38,8 @@ $messages['en'] = array(
 		'msu-desc' => 'Enables easy uploads (when available also via drag&drop) for one or multiple files simultaneously',
         'msu-button_title' => 'Select files',
         'msu-insert_link' => 'Insert link',
+        'msu-insert_file' => 'Insert file', 
+        'msu-insert_music' => 'Insert Music', 
         'msu-insert_gallery' => 'Insert pictures as gallery',
         'msu-clean_gallery' => 'Clean all files',
 		'msu-clean_confirm' => 'Are you sure you want clean all?',
@@ -71,15 +73,18 @@ $messages['ru'] = array(
 		'msu-comment' => 'MsUpload',		
 );
 /** Chinese Simplified 
+ * @mod 森亮号大船
  * @author 晒太阳的冰 （zoglun@gmail.com）
  */
 $messages['zh-hans'] = array(
 	   'msu-desc' => '开启轻松上传',
        'msu-button_title' => '上传图片',
-       'msu-insert_link' => '插入图片的链接',
+       'msu-insert_link' => '插入文件链接',
+	   'msu-insert_file' => '插入文件', // SLBoat: 只是插入文件
+   	   'msu-insert_music' => '插入音频见识', // SLBoat: 只是插入文件
        'msu-insert_gallery' => '插入图片集合',
-       'msu-clean_gallery' => '清空上传文件',
-	   'msu-clean_confirm' => '是否清空所有这些？',
+       'msu-clean_gallery' => '清空上传文件', // SLBoat: 批量处理删除
+	   'msu-clean_confirm' => '是否清空所有这些？', // SLBoat: 确认删除
        'msu-insert_picture' =>  '插入图片',
        'msu-insert_movie' => '插入视频',
        'msu-cancel_upload' => '取消上传',

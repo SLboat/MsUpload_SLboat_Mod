@@ -219,7 +219,7 @@ function createUpload(wikiEditor){
     		// SLBoat: 默认的所有文件格式啥的，插入单个文件的连接
     		$(document.createElement("a")).text(mw.msg('msu-insert_link')).click(function(e) { //click
   			    if(msu_vars.use_mslinks == 'true'){ // SLBoat: 这里的ms是啥意思
-  			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
+  			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // 仅仅是插入文件的连接	
   			    } else {
 					// SLBoat: 换成中文的文件名？那不完全失去了国际性
 					msu_vorlage_insert('[[:File:'+file.name+']]','',''); // SLBoat: 单个文件插入——这里与图片是隔开的，只是插入链接
@@ -264,8 +264,28 @@ function createUpload(wikiEditor){
         			msu_vorlage_insert('[[File:'+file.name+']]','','');
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
+        	} else if (file.group == "music") { //音频见识在这里
+				// SLBoat: 插入一根竖线
+				$(document.createElement("span")).text(' | ').appendTo(file.li); // SLBoat: 这是电影的特别玩意，改变图标文字
+				// SLBoat: 插入一个按钮-第二按钮
+        		$(document.createElement("a")).text(mw.msg('msu-insert_music')).click(function(e) { //click
 
-        	} //movie
+        			msu_vorlage_insert('[[File:'+file.name+']]','','');
+        			
+        		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
+
+				}
+        	}else{ // SLBoat: 其它文件也有个插入文件	
+				// SLBoat: 插入一根竖线
+				$(document.createElement("span")).text(' | ').appendTo(file.li); // SLBoat: 这是电影的特别玩意，改变图标文字
+				// SLBoat: 插入一个按钮-第二按钮
+        		$(document.createElement("a")).text(mw.msg('msu-insert_file')).click(function(e) { //click
+
+        			msu_vorlage_insert('[[File:'+file.name+']]','','');
+        			
+        		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
+
+				}
         	
         	}//else error
 			//todo：生成一个有趣的music插入提示文本

@@ -54,7 +54,8 @@ $wgResourceModules['ext.MsUpload'] = array(
         'styles' => array( 'css/jquery.css', 'css/msupload.css' ),
         // When your module is loaded, these messages will be available through mw.msg()
 		// 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
-        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment', 'msu-clean_gallery', 'msu-clean_confirm',),
+        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: 这里依然是官方的尾巴部分
+		'msu-clean_gallery', 'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: 这里是森亮号的Mod了
 		//依赖进度栏插件，少了可不行
 		 'dependencies' => array( 'jquery.ui.progressbar' ),
         // subdir relative to "/extensions"
