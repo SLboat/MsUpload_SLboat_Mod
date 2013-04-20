@@ -274,6 +274,7 @@ function createUpload(wikiEditor){
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
 
+				}
         	}else{ // SLBoat: 其它文件也有个插入文件	
 				// SLBoat: 插入一根竖线
 				$(document.createElement("span")).text(' | ').appendTo(file.li); // SLBoat: 这是电影的特别玩意，改变图标文字
@@ -284,7 +285,7 @@ function createUpload(wikiEditor){
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
 
-        	
+        	}// SLBoat: 下面还有一个换行是的
         	}//else error
 			//todo：生成一个有趣的music插入提示文本
         	
