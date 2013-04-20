@@ -14,6 +14,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
+//自动保存上传分类
 function wfMsUploadSaveKat($name,$kat) { // SLBoat:修改类的玩意，看起来是
 
         global $wgContLang,$wgUser;

@@ -77,7 +77,7 @@ function MSLSetup() {
   
   $use_MsLinks = 'false';
   if(isset($wgMSL_FileTypes)){$use_MsLinks = 'true';} //check whether the extension MsLinks is installed
-//新增加了默认图片尺寸参数
+  //新增加了默认图片尺寸参数
   if(!is_null($wgMSU_ImgParams)){$wgMSU_ImgParams = '|'.$wgMSU_ImgParams;} //default image params
     
 	$msu_vars = array(
