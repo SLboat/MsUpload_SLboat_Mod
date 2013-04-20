@@ -2,28 +2,28 @@ var gallery_arr = new Array();
 
 $(document).ready(function () { //jquery      
 /* Check if we are in edit mode and the required modules are available and then customize the toolbar */
-if ( $.inArray( mw.config.get( 'wgAction' ), ['edit', 'submit'] ) !== -1 ) {
+if ( $.inArray( mw.config.get( 'wgAction' ), ['edit', 'submit'] ) !== -1 ) {	//注入工具栏
 	mw.loader.using( 'user.options', function () {
 		if ( mw.user.options.get('usebetatoolbar') ) {
-	    	mw.loader.using( 'ext.wikiEditor.toolbar', function () { createUpload(true); });
-		}else{ createUpload(false); }
+	    	mw.loader.using( 'ext.wikiEditor.toolbar', function () { createUpload(true); });	//创建现代工具栏按钮
+		}else{ createUpload(false); }	//创建经典工具栏
 	});
 }
 });
 
 function createUpload(wikiEditor){
 		
-		//create upload button
-		var upload_button = $(document.createElement("div")).attr('id',"upload_select");
-    	var upload_container = $(document.createElement("div")).attr({ 
+		// SLBoat: 创建上传按钮
+		var upload_button = $(document.createElement("div")).attr('id',"upload_select"); //建立上传按钮
+    	var upload_container = $(document.createElement("div")).attr({ //按钮的容器
       			id: "upload_container",
       			title: mw.msg('msu-button_title'),
       			'class': 'start-loading'
      	}).append(upload_button);
        
 		if(wikiEditor==true){		
-			//insert upload button
-			var upload_tab = $(document.createElement("div")).attr('class','group ').appendTo('#wikiEditor-ui-toolbar .toolbar');
+			// SLBoat: 只添加到主要工具栏后面，单独获得一个组，有趣的是这里就是个基本的原型，手动添加按钮的
+			var upload_tab = $(document.createElement("div")).attr('class','group group-msupload').insertAfter('#wikiEditor-ui-toolbar .section-main .group-format'); //按钮的分类
 			upload_container.appendTo(upload_tab);
 			//create upload div  
 			var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter('#wikiEditor-ui-toolbar'); 
@@ -39,8 +39,8 @@ function createUpload(wikiEditor){
 	    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
 	    var spacer = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
 	    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
-	//加上清除按钮到最后
-    var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_gallery')).appendTo(bottom_div);
+		//加上清除按钮到最后
+		var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_gallery')).appendTo(bottom_div);
 
         var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',
