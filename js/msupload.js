@@ -13,67 +13,57 @@ if ( $.inArray( mw.config.get( 'wgAction' ), ['edit', 'submit'] ) !== -1 ) {
 
 function createUpload(wikiEditor){
 		
-	if(wikiEditor==true){		
+		//create upload button
+		var upload_button = $(document.createElement("div")).attr('id',"upload_select");
+    	var upload_container = $(document.createElement("div")).attr({ 
+      			id: "upload_container",
+      			title: mw.msg('msu-button_title'),
+      			'class': 'start-loading'
+     	}).append(upload_button);
+       
+		if(wikiEditor==true){		
+			//insert upload button
+			var upload_tab = $(document.createElement("div")).attr('class','group ').appendTo('#wikiEditor-ui-toolbar .toolbar');
+			upload_container.appendTo(upload_tab);
+			//create upload div  
+			var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter('#wikiEditor-ui-toolbar'); 
+			$('#wikiEditor-ui-toolbar .tool .options').css('z-index', '2'); //headline dropdown		
+		}else{ //only standard editor
+	      upload_container.appendTo("#toolbar"); 
+		  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
+		} 
 		
-		// SLBoat:创建新版的上传按钮
-		var upload_tab = $(document.createElement("span")).attr('class','tab tab-msupload').prependTo('#wikiEditor-ui-toolbar .tabs');
-				
-		var upload_button = $(document.createElement("span")).attr({ 
-		     id: "upload_select",
-		     title: mw.msg('msu-button_title')
-		}).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo(upload_tab);  // SLBoat:修改上传图片为透明的
-		
-		//create upload div  
-    	var upload_container = $(document.createElement("div")).attr('id',"upload_container").insertAfter('#wikiEditor-ui-toolbar');
-   		var upload_div = $(document.createElement("div")).attr("id","upload_div").appendTo(upload_container); 
-		var container_msu = 'upload_container';
-		$('#wikiEditor-ui-toolbar .tool .options').css('z-index', '2'); //headline dropdown
-	
-	}else{ // SLBoat:创建经典的上传按钮
-		
-	  var upload_button = $(document.createElement("a")).attr({ 
-      id: "upload_select",
-      title: mw.msg('msu-button_title')
-      }).append('<img src="'+msu_vars.path+'/images/button_upload_slboat.png">').appendTo("#toolbar"); // SLBoat:透明上传图片，尽管很少机会用到标准按钮
-	  
-	  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
-	  var container_msu = 'toolbar';
-	}  
-	      
-    var status_div = $(document.createElement("div")).attr("id","upload_status").html('No runtime found.').appendTo(upload_div); 
-    var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
-    var bottom_div = $(document.createElement("div")).attr("id","upload_bottom").appendTo(upload_div).hide(); 
-    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
-    var spacer = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
-    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
+		var status_div = $(document.createElement("div")).attr("id","upload_status").html('No runtime found.').appendTo(upload_div); 
+	    var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
+	    var bottom_div = $(document.createElement("div")).attr("id","upload_bottom").appendTo(upload_div).hide(); 
+	    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
+	    var spacer = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
+	    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
 	//加上清除按钮到最后
     var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_gallery')).appendTo(bottom_div);
 
-       var uploader = new plupload.Uploader({
-    		//runtimes : 'html5,flash',
+        var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',
     		browse_button : 'upload_select',
-    		container : container_msu,
+    		container : 'upload_container', //官方V9.3后变更了容器名称
     		max_file_size : '20mb',
     		drop_element: 'upload_drop',
-    		unique_names: false,
-    		//multipart_params: {} ,     
-        	url : msu_vars.path+'/../../api.php', // SLBoat:这就是负责上传的最终API
+    		//unique_names: true,  
+        	url : msu_vars.path+'/../../api.php',
     		flash_swf_url : msu_vars.path+'/js/plupload/plupload.flash.swf',
-    		silverlight_xap_url : msu_vars.path+'/js/plupload/plupload.silverlight.xap'
-    		
-	     /*
-	     // Specify what files to browse for
+    		silverlight_xap_url : msu_vars.path+'/js/plupload.silverlight.xap',
+    		//resize : {width : 320, height : 240, quality : 90}, //设置图片尺寸，看起来还没开启
+
+	     /* Specify what files to browse for，特指文件类型，这里没启用
         filters : [
 	            {title : "Image files", extensions : "jpg,gif,png"},
 	            {title : "Zip files", extensions : "zip"}
-        ],
-        // resize pictures
-        //resize : {width : 320, height : 240, quality : 90}
-        */	
+        ], */	
     	});
     
     	uploader.bind('Init', function(up, params) { // SLBoat:初始化上传组件
+    		
+	    	upload_container.removeClass('start-loading');
     		status_div.html("<b>Debug</b> runtime: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop));
     		if(msu_vars.debugMode == 'false') status_div.hide(); //hide status if debug mode is disabled
 
@@ -87,7 +77,9 @@ function createUpload(wikiEditor){
 				}).bind('drop',function(event){
 					   $(this).removeClass('drop_over').css('padding','0px');
 				});
-	        }    		
+
+	       } //if
+    		
     	});
 
       uploader.bind('FilesAdded', function(up, files) { // slboat:文件添加后的事件，看起来就在这里进行处理了
@@ -111,8 +103,8 @@ function createUpload(wikiEditor){
 	            file.li.type = $(document.createElement("span")).attr("class","file-type").appendTo(file.li);
 	            file.li.title = $(document.createElement("span")).attr("class","file-title").text(file.name).appendTo(file.li);
 	            file.li.size = $(document.createElement("span")).attr("class","file-size").text(plupload.formatSize(file.size)).appendTo(file.li);
+	            file.li.loading = $(document.createElement("span")).attr("class","file-loading").appendTo(file.li);
 	            file.li.warning = $(document.createElement("span")).attr("class","file-warning").appendTo(file.li);
-	            file.li.container = $(document.createElement("span")).appendTo(file.li);
 	            
 	            check_extension(file,up);  // slboat:检查文件后缀
             	file_index++; // slboat森亮号IOS6修改:索引加1
@@ -124,7 +116,7 @@ function createUpload(wikiEditor){
 		uploader.trigger("CheckFiles", up);
      });
       
-     uploader.bind('StateChanged', function(up) { // SLBoat:状态改变了。。为何而改变呢
+     uploader.bind('StateChanged', function(up) { // SLBoat:状态改变了。。通常是上传的状态改变了
 		if(msu_vars.debugMode == 'true') console.log(up.state);
 		
 		if (up.files.length === (up.total.uploaded + up.total.failed)) {  // SLBoat:全部上传完毕后的一次触发，在这里看起来只被用来做调试输出
@@ -229,7 +221,7 @@ function createUpload(wikiEditor){
   			    if(msu_vars.use_mslinks == 'true'){
   			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
   			    } else {
-  			    	//msu_vorlage_insert('[[File:'+file.name+']]','',''); // insert link
+  			    	//msu_vorlage_insert('[[:File:'+file.name+']]','',''); // 原始的插入单个文件，是插入文件连接，这里取消
 					msu_vorlage_insert(':[[File:'+file.name+']]','',''); // 单个文件插入——这里与图片是隔开的
   			    }
   			    
@@ -257,8 +249,9 @@ function createUpload(wikiEditor){
         		$(document.createElement("span")).text(' | ').appendTo(file.li);
         		$(document.createElement("a")).text(mw.msg('msu-insert_picture')).click(function(e) { //click
         			
-        			msu_vorlage_insert(':[[File:'+file.name+']]','',''); //插入单张图片
-        			
+        			//msu_vorlage_insert('[[File:'+file.name+msu_vars.imgParams+']]','',''); //V9.3 增加了图片的尺寸
+					msu_vorlage_insert(':[[File:'+file.name+']]','',''); //SLboat - 插入单张图片，仅仅单张图片
+        		
         		}).appendTo(file.li);
         		
                 
@@ -322,7 +315,7 @@ function createUpload(wikiEditor){
         
         up.refresh(); // SLBoat:进行刷新，看起来对于flash之类的很要紧
 	 });
-	  //绑定清空事件	
+    		  //绑定清空事件	
     	$('#gallery_clean').click(function(e) {
 			/*---注销麻烦的对话框，它不是个好主意
 			if (!(confirm(mw.msg("msu-clean_confirm"))))
@@ -335,10 +328,13 @@ function createUpload(wikiEditor){
 			$(".yellow.file").attr("style","display:none"); // SLBoat:清空黄色文件
 			$(".file:not([style])[class='file']>.file-cancel").click(); // SLBoat:清空所有待上传的文件
     	});	
+
+    	
     	$('#upload_files').click(function(e) { // SLBoat:点击开始上传后的触发
     		uploader.start();
     		e.preventDefault();
     	});		
+    	
     /*
     $('uploadfiles').onclick = function() {
           	uploader.start();
@@ -363,7 +359,7 @@ function add_gallery(){ //插入整个相册就在这里了，而这里将变成
 function check_extension(file,uploader){
 		if(msu_vars.debugMode == 'true') console.log(file);
 		
-        file.li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
+        file.li.loading.show();
 		file.extension = file.name.split('.').pop().toLowerCase(); // SLBoat:获得后缀类型，看起来被附加到了一个新属性里哦
 
 		if($.inArray(file.extension, wgFileExtensions) != -1) { // SLBoat:有效文件类型
@@ -372,27 +368,28 @@ function check_extension(file,uploader){
 			  // SLBoat:图片文档增加图标
        	 	  case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tif': case 'tiff': //pictures
        	 		file.group = "pic";
+       	 		file.li.type.addClass('picture');
 				// SLBoat:根据IOS6进行不同的图标展示
 				if (isIOS6()){ // SLBoat:注意这里强制不检查文件名称
 					// SLBoat:显示特制的ios6图标
 	       	 		file.li.type.addClass('picture_ios6');
 				}else{
 					file.li.type.addClass('picture');
-				}
-            	break;
+				}            	break;
 			  case 'mov':
-       	 		file.group = "mov";
+       	 		file.group = "mov"; //电影文件
+       	 		file.li.type.addClass('film');
              	break;
-     		  case 'mp3': //音乐文件
+        	  case 'pdf': //官方V9.3以后增加的pdf支持
+        	    file.li.type.addClass('pdf');
+             	break;
+     		  case 'mp3': //音频见识MP3
 			    file.li.type.addClass('music');
-				break;
-        	//case 'pdf':
-            /* handle */
-            //break;
-    		}
+				break;    		}
     		
             check_file(file.name,file.li);
 			//删除文件就在这里
+                   				
 	        file.li.cancel = $(document.createElement("span")).attr("title",mw.msg('msu-cancel_upload')).click(function(e) {
 	                file.li.fadeOut("slow");  //淡出显示,最后会变成隐藏,因此dead
 
@@ -401,17 +398,17 @@ function check_extension(file,uploader){
 					 	if(idx!=-1) gallery_arr.splice(idx, 1); 	// 如果找到在图片数组里,那么序号
 					 	uploader.trigger("CheckFiles", uploader); 	// 删除图片后,重新检查文件,刷新按钮等玩意吧
         			}
-        			uploader.removeFile(file); //移除文件,不知道真实的移除了什么
+        			uploader.removeFile(file); //移除文件,不知道真实的移除了什么，只是移除了容器里的
         			uploader.refresh();  //刷新显示
         			
 	        }).attr("class","file-cancel").appendTo(file.li);
 	        // SLBoat:建造file？    
-            build(file); // alles aufbauen 
+            build(file); // alles aufbauen
             	
 
       } else { // wrong datatype
 			// SLBoat:无效文件类型，只在js里处理？
-			file.li.container.hide(1, function() { //create callback
+			file.li.loading.hide(1, function() { //create callback 
 				uploader.removeFile(file);
 				uploader.refresh();  	
 			});
@@ -423,18 +420,28 @@ function check_extension(file,uploader){
 
 function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
 		 	
-          file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");              		         
+          //file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
+              		         
           sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename],  // SLBoat:检查是否重复文件名
-			  function (result) {        				
-        		warning = result.responseText.replace(/(<([^>]+)>)/ig,""); // SLBoat:初次过滤的信息
+        		function (result) {
+        		warning = result.responseText.replace(/(<([^>]+)>)/ig,"");// SLBoat:初次过滤的信息
 				// SLBoat:整理掉该死的strong返回玩意，alex见证
 				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt;","]]");
-        		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {        			
+        		if ( warning == '' || warning == '&nbsp;' || warning =='&#160;') {
+        			
         			file_li.warning.text(mw.msg('msu-upload_possible')).removeClass('small_warn');
-        		} else {        		
-                	// errorhandling (string eventuell noch kuerzen)
-                	file_li.warning.html('<span class=\'small_warn\'>'+warning+'</span>');             
-                } //else       				
+        			
+
+        		} else {
+        		
+                	// errorhandling,错误信息得到
+                	warning_split = warning.split(". "); //split error
+                	$(document.createElement("span")).attr("class","small_warn").text(warning_split[0]).click(function(e) {
+                		$(this).text(warning_split[0]+'. '+warning_split[1]);
+                	}).appendTo(file_li.warning);
+             
+                } //else
+       			file_li.loading.hide();	
         	});
 }
 
@@ -448,11 +455,13 @@ function file_error(file,error_text){
     file.li.click(function(e) { //bei klick li löschen
 	   file.li.fadeOut("slow");
 	})
-		
+	
+	
 }
 
 
-function build(file){ 
+function build(file){
+   
 
       //fileindexer
       //if(autoIndex){
@@ -482,7 +491,7 @@ function build(file){
         }
       } 
       
-
+		
     	file.li.title.mouseover(function() { //mouseover
 			$(this).addClass('title_over');
     	 }).mouseleave(function() {		//mouseout	
