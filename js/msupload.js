@@ -216,17 +216,18 @@ function createUpload(wikiEditor){
 		         });
 		        
 		     } //if
-    		
+    		// SLBoat: 默认的所有文件格式啥的，插入单个文件的连接
     		$(document.createElement("a")).text(mw.msg('msu-insert_link')).click(function(e) { //click
-  			    if(msu_vars.use_mslinks == 'true'){
+  			    if(msu_vars.use_mslinks == 'true'){ // SLBoat: 这里的ms是啥意思
   			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
   			    } else {
-					msu_vorlage_insert('[[:File:'+file.name+']]','',''); // 单个文件插入——这里与图片是隔开的，只是插入链接
+					// SLBoat: 换成中文的文件名？那不完全失去了国际性
+					msu_vorlage_insert('[[:File:'+file.name+']]','',''); // SLBoat: 单个文件插入——这里与图片是隔开的，只是插入链接
   			    }
   			    
         	}).appendTo(file.li);
     		
-            if (file.group == "pic"){
+            if (file.group == "pic"){ //只对图片又批量插入的功能
         		  
         		gallery_arr.push(file.name); //push 置入到数组里..仅仅置入文件名,因为已经上传成功
 
@@ -242,7 +243,7 @@ function createUpload(wikiEditor){
 	        				//spacer.show();
         		  } else if(gallery_arr.length< 2) {
         		  		
-        		  	gallery_insert.html('');
+        		  	gallery_insert.html(''); //不插入批量插入的按钮
         		  }
 
         		$(document.createElement("span")).text(' | ').appendTo(file.li);
@@ -257,16 +258,17 @@ function createUpload(wikiEditor){
         	} else if (file.group == "mov") { //mov  
         		  
         		
-        		$(document.createElement("span")).text(' | ').appendTo(file.li);
+        		$(document.createElement("span")).text(' | ').appendTo(file.li); //这是电影的特别玩意，改变图标文字
         		$(document.createElement("a")).text(mw.msg('msu-insert_movie')).click(function(e) { //click
 
         			msu_vorlage_insert('[[File:'+file.name+']]','','');
         			
-        		}).appendTo(file.li);
+        		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
 
         	} //movie
         	
         	}//else error
+			//todo：生成一个有趣的music插入提示文本
         	
         }catch(e){//try
 			
@@ -325,7 +327,7 @@ function createUpload(wikiEditor){
 			// SLBoat:虽然这些删除实际只是隐藏、去除索引，但还是很酷的
 			$(".green.file:not([style])>.file-cancel").click(); // SLBoat:清空可以取消的文件
 			$(".yellow.file").attr("style","display:none"); // SLBoat:清空黄色文件
-			$(".file:not([style])[class='file']>.file-cancel").click(); // SLBoat:清空所有待上传的文件
+			$(".file:not([style])[class='file']>.file-cancel").click(); // SLBoat:清空所有待上传的文件，这样看起来很不错:)
     	});	
 
     	
@@ -333,7 +335,7 @@ function createUpload(wikiEditor){
     		uploader.start(); // SLBoat: 开始传入中
     		e.preventDefault(); // SLBoat: 看起来是避免重复啥的
     	});		
-    	//这里可以注入事件，进行删除事件绑定
+    	// SLBoat: 这里或许可以注入事件，进行删除事件绑定，只是还要隐藏文件的li
     /*
     $('uploadfiles').onclick = function() {
           	uploader.start();
@@ -407,10 +409,10 @@ function check_extension(file,uploader){
             	
 
       } else { // wrong datatype
-			// SLBoat:无效文件类型，只在js里处理？
+			// SLBoat:无效文件类型，只在js里处理？这里是隐藏并且处理
 			file.li.loading.hide(1, function() { //create callback 
-				uploader.removeFile(file);
-				uploader.refresh();  	
+				uploader.removeFile(file); // SLBoat: 删除文件
+				uploader.refresh();  // SLBoat: 刷新上传控件
 			});
 
             file_error(file,mw.msg('msu-ext_not_allowed')+' '+wgFileExtensions.join(','));
