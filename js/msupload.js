@@ -139,12 +139,12 @@ function createUpload(wikiEditor){
     		token: mw.user.tokens.get( 'editToken' ),
     		action:"upload", //这是传入的操作方式
     		ignorewarnings:true,
-    		comment:mw.msg('msu-comment')+autoAddKat(file.name),  // SLBoat:注入了备注消息就在这里
+    		comment:mw.msg('msu-comment')+autoAddKat(file.name),  // SLBoat:注入了备注消息就在这里，这里是提前申请备注
     		format:"json"
     	}; //set multipart_params
     	$('#' + file.id + " div.file-progress-bar").progressbar({value: '1'});
     	$('#' + file.id + " span.file-progress-state").html("0%");
-    	
+    	// SLBoat: 这里处理完后就交给API去上传了
      });
       
      uploader.bind('UploadProgress', function(up, file) {
@@ -221,8 +221,7 @@ function createUpload(wikiEditor){
   			    if(msu_vars.use_mslinks == 'true'){
   			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
   			    } else {
-  			    	//msu_vorlage_insert('[[:File:'+file.name+']]','',''); // 原始的插入单个文件，是插入文件连接，这里取消
-					msu_vorlage_insert(':[[File:'+file.name+']]','',''); // 单个文件插入——这里与图片是隔开的
+					msu_vorlage_insert('[[:File:'+file.name+']]','',''); // 单个文件插入——这里与图片是隔开的，只是插入链接
   			    }
   			    
         	}).appendTo(file.li);
@@ -331,10 +330,10 @@ function createUpload(wikiEditor){
 
     	
     	$('#upload_files').click(function(e) { // SLBoat:点击开始上传后的触发
-    		uploader.start();
-    		e.preventDefault();
+    		uploader.start(); // SLBoat: 开始传入中
+    		e.preventDefault(); // SLBoat: 看起来是避免重复啥的
     	});		
-    	
+    	//这里可以注入事件，进行删除事件绑定
     /*
     $('uploadfiles').onclick = function() {
           	uploader.start();
@@ -384,6 +383,7 @@ function check_extension(file,uploader){
         	    file.li.type.addClass('pdf');
              	break;
      		  case 'mp3': //音频见识MP3
+			    file.group = "music"; //添加音频见识分组
 			    file.li.type.addClass('music');
 				break;    		}
     		
@@ -447,7 +447,7 @@ function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
 
 function file_error(file,error_text){
 	
-	file.li.warning.text(error_text);
+	file.li.warning.text(error_text);	//显示错误信息
     //file.li.type.addClass('document');
     file.li.addClass('yellow');
     file.li.type.addClass('error');
@@ -456,7 +456,7 @@ function file_error(file,error_text){
 	   file.li.fadeOut("slow");
 	})
 	
-	
+
 }
 
 

@@ -87,8 +87,8 @@ $messages['zh-hans'] = array(
        'msu-ext_not_allowed' => '只有下列类型文件可以被上传:',
        'msu-upload_this' => '点这里上传这个文件',
        'msu-upload_all' => '点这里上传所有文件',
-       'msu-dropzone' => '拖动文件到这里上传',   
-       'msu-comment' => '森亮航海见识上传',
+       'msu-dropzone' => '把文件带上见识的甲板',   
+       'msu-comment' => '由森亮航海见识上传',
 );
 
 /** Chinese Traditional
