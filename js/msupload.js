@@ -264,7 +264,7 @@ function createUpload(wikiEditor){
         			msu_vorlage_insert('[[File:'+file.name+']]','','');
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
-        	} else if (file.group == "music_") { //音频见识在这里
+        	} else if (file.group == "music") { //音频见识在这里
 				// SLBoat: 插入一根竖线
 				$(document.createElement("span")).text(' | ').appendTo(file.li); // SLBoat: 这是电影的特别玩意，改变图标文字
 				// SLBoat: 插入一个按钮-第二按钮
