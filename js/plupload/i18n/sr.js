@@ -1,4 +1,4 @@
-// Serbian
+﻿// Serbian
 plupload.addI18n({
     'Select files' : 'Izaberite fajlove',
     'Add files to the upload queue and click the start button.' : 'Dodajte fajlove u listu i kliknite na dugme Start.',
