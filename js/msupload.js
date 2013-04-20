@@ -162,7 +162,7 @@ function createUpload(wikiEditor){
     		status_div.append(err.message);
     		up.refresh(); // Reposition Flash/Silverlight
      });
-    
+    //文件上传成功后，处理些后面的事情
      uploader.bind('FileUploaded', function(up, file, success) {
 
 		if(msu_vars.debugMode == 'true') console.log(success);
@@ -355,7 +355,7 @@ function add_gallery(){ //插入整个相册就在这里了，而这里将变成
 	gallery_text +=']]';//最后一个标签的右边部分
 	msu_vorlage_insert(gallery_text,'\n','\n');  //插入头部和尾部
 }
-
+//检查文件后缀
 function check_extension(file,uploader){
 		if(msu_vars.debugMode == 'true') console.log(file);
 		
@@ -576,6 +576,7 @@ function autoAddKat(file_name){
 	var file_data_str = ""; //文件日期字符串
 	var file_extension = file_name.split('.').pop().toLowerCase();
 	var year,month; //月份
+	// todo：检查是否为有效mp3后缀，不是的话跳出工作
 	// SLBoat:尝试从文件读取日期
 	var file_data_arr = file_name.match(/(?:\D|^)(\d{2})(\d{2})(\d{2})_/); // SLBoat:匹配正则 [非数字]（年份2位）（月份2位）（日期2位）_
 	if (file_data_arr != null){
@@ -593,10 +594,10 @@ function autoAddKat(file_name){
 			file_data_str = now.getFullYear()+"年"+(now.getMonth()+1)+"月";
 		}
 	// SLBoat:尝试从文件名提取月份，如果顺利的话，如果不的话采取当前的月份
-	kat_mp3 = kat_mp3+" [[分类:音频见识 " + file_data_str+ "]]";
+	kat_mp3 += " [[分类:音频见识 " + file_data_str+ "]]"; //额外增加音频见识月份
 	if (file_extension == "mp3") //如果是音频见识文件
 	{
-		kat_text = "\n"+kat_mp3; //加在最后面咯
+		kat_text = "\n"+kat_mp3; //加在最后面咯，也就是起到作用了
 	}
 	// SLBoat:todo：增加图片见识？
 	return kat_text;
