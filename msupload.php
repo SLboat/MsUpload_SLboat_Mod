@@ -1,4 +1,30 @@
 <?php
+############################################################
+#Author:
+#Martin Schwindl, msupload@ratin.de
+#
+#Icons: 
+#Some icons by Yusuke Kamiyamane. All rights reserved. Licensed under a Creative Commons Attribution 3.0 License.
+#http://p.yusukekamiyamane.com
+#
+#Usage:
+#LocalSettings.php:
+#
+##Start --------------------------------------- MsUpload
+##if necessary
+##$wgEnableWriteAPI = true; //API
+##$wgEnableUploads = true; // Enable uploads
+##$wgFileExtensions = array('png','gif','jpg','jpeg','doc','xls','mpp','pdf','ppt','tiff','bmp','docx', 'xlsx', 'pptx','ps','odt','ods','odp','odg');
+#
+#$wgMSU_ShowAutoKat = true;     #autokategorisierung
+#$wgMSU_CheckedAutoKat = true;  #checkbox: checked = true/false
+#$wgMSU_debug = false;
+#$wgMSU_ImgParams = "400px";	
+#require_once("$IP/extensions/MsUpload/msupload.php");
+##End  --------------------------------------- MsUpload
+#
+#
+############################################################
 # Setup and Hooks for the MsUpload extension
 if( !defined( 'MEDIAWIKI' ) ) {
  	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
@@ -8,17 +34,15 @@ if( !defined( 'MEDIAWIKI' ) ) {
 ## Register extension setup hook and credits:
 $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
-	'url'  => 'https://www.mediawiki.org/wiki/Extension:MsUpload',
+	'url'  => 'http://see.sl088.com/wiki/%E6%89%A9%E5%B1%95:MsUpload',
 	'descriptionmsg' => 'msu-desc',
-	'version' => '9.2',
-	'author' => '[mailto:info@ratin.de info@ratin.de] | [http://www.ratin.de/msupload.html Ratin]',
+	'version' => '9.3 SLboat Mod',
+	'author' => '[mailto:msupload@ratin.de info@ratin.de] | [http://www.ratin.de/msupload.html Ratin]',
 );
 
 $dir = dirname(__FILE__).'/';
 //$wgAvailableRights[] = 'msupload';
 $wgExtensionMessagesFiles['msu'] = $dir . 'msupload.i18n.php';
-
-
 $wgHooks['EditPage::showEditForm:initial'][] = 'MSLSetup';
 require_once($dir.'msupload.body.php');
 //$wgAutoloadClasses['msupload'] = $dir . 'msupload.body.php';
@@ -30,8 +54,7 @@ $wgResourceModules['ext.MsUpload'] = array(
         'styles' => array( 'css/jquery.css', 'css/msupload.css' ),
         // When your module is loaded, these messages will be available through mw.msg()
 		// 注册的语言字符声明
-        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-clean_gallery', 'msu-clean_confirm', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment' ),
- 
+        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment' ),
         'dependencies' => array( 'jquery.ui.progressbar' ),
         // subdir relative to "/extensions"
         'localBasePath' => dirname( __FILE__ ),
@@ -50,11 +73,12 @@ function MSLSetup() {
   //load module
   $wgOut->addModules( 'ext.MsUpload' );
   
-  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSL_FileTypes, $wgJsMimeType, $wgMSU_debug;
+  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSL_FileTypes, $wgJsMimeType, $wgMSU_debug, $wgMSU_ImgParams;
   
   $use_MsLinks = 'false';
   if(isset($wgMSL_FileTypes)){$use_MsLinks = 'true';} //check whether the extension MsLinks is installed
-
+//新增加了默认图片尺寸参数
+  if(!is_null($wgMSU_ImgParams)){$wgMSU_ImgParams = '|'.$wgMSU_ImgParams;} //default image params
     
 	$msu_vars = array(
 		'path' => $path,
@@ -62,7 +86,8 @@ function MSLSetup() {
     	'autoKat' => BoolToText($wgMSU_ShowAutoKat),
     	'autoIndex' => 'false', #BoolToText($wgMSU_AutoIndex);
 		'autoChecked' => BoolToText($wgMSU_CheckedAutoKat),
-		'debugMode' => BoolToText($wgMSU_debug)
+		'debugMode' => BoolToText($wgMSU_debug),
+		'imgParams' => $wgMSU_ImgParams	//图片参数
 	);
 
 	$msu_vars = json_encode($msu_vars);
