@@ -50,7 +50,8 @@
 
 #upload_drop{
   margin:3px;
-  padding:5px;
+  /* V9.4 作者设置为5px，但是它看起来太厚了 */
+  padding:2px;
   border:1px dashed #ddd;
   text-align:center;
   height:20px;
