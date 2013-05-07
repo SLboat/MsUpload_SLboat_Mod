@@ -28,8 +28,9 @@ function createUpload(wikiEditor){
 			//create upload div  
 			var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter('#wikiEditor-ui-toolbar'); 
 			$('#wikiEditor-ui-toolbar .tool .options').css('z-index', '2'); //headline dropdown		
-		}else{ //only standard editor
-	      upload_container.appendTo("#toolbar"); 
+		}else{ //only standard editor // SLBoat: V9.4作者增加了一些CSS玩意
+	      upload_container.css('display','inline-block').css('vertical-align', 'middle').appendTo("#toolbar"); 
+	      upload_button.addClass('old_button');
 		  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
 		} 
 		
@@ -37,10 +38,11 @@ function createUpload(wikiEditor){
 	    var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
 	    var bottom_div = $(document.createElement("div")).attr("id","upload_bottom").appendTo(upload_div).hide(); 
 	    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
-	    var spacer = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
+	    var spacer1 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
+    	var clean_all 
+// SLBoat: 这是作者引入的清除按钮= $(document.createElement("a")).attr("id","clean_all").text(mw.msg('msu-clean_all')).appendTo(bottom_div).hide();	
+		var spacer2 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
 	    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
-		//加上清除按钮到最后
-		var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_all')).appendTo(bottom_div);
 
         var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',
@@ -49,9 +51,11 @@ function createUpload(wikiEditor){
     		max_file_size : '20mb',
     		drop_element: 'upload_drop',
     		//unique_names: true,  
+    		//multipart: false, //evtl i	// SLBoat: 官方V9.4后增加了这个带注释的
         	url : msu_vars.path+'/../../api.php',
     		flash_swf_url : msu_vars.path+'/js/plupload/plupload.flash.swf',
     		silverlight_xap_url : msu_vars.path+'/js/plupload.silverlight.xap',
+
     		//resize : {width : 320, height : 240, quality : 90}, //设置图片尺寸，看起来还没开启
 
 	     /* Specify what files to browse for，特指文件类型，这里没启用
@@ -67,17 +71,19 @@ function createUpload(wikiEditor){
     		status_div.html("<b>Debug</b> runtime: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop));
     		if(msu_vars.debugMode == 'false') status_div.hide(); //hide status if debug mode is disabled
 
-    		if(up.features.dragdrop && !isIOS6() ){ // SLBoat:支持拖放
+    		if(up.features.dragdrop && !isIOS6()  && msu_vars.dragdrop == "true"){ // SLBoat:支持拖放
 	        	// SLBoat: 增加了在IOS6上不需要显示这个，显示也没啥用
-	        	var upload_drop = $(document.createElement("div")).attr("id","upload_drop").html('<span class="drop_text">'+mw.msg('msu-dropzone')+'</span>').insertAfter(status_div); 
+	        	var upload_drop = $(document.createElement("div")).attr("id","upload_drop").text(mw.msg('msu-dropzone')).insertAfter(status_div); 
 	        	upload_drop.bind('dragover',function(event){
-					   $(this).addClass('drop_over').css('padding','30px');
+					   $(this).addClass('drop_over').css('padding','20px');
 				}).bind('dragleave',function(event){
 					   $(this).removeClass('drop_over').css('padding','0px');
 				}).bind('drop',function(event){
 					   $(this).removeClass('drop_over').css('padding','0px');
 				});
 
+	       	}else{
+	       		upload_div.addClass('nodragdrop'); // SLBoat: V9.4作者引入了没有拖入框
 	       } //if
     		
     	});
@@ -109,14 +115,15 @@ function createUpload(wikiEditor){
 	            check_extension(file,up);  // slboat:检查文件后缀
             	file_index++; // slboat森亮号IOS6修改:索引加1
     		});
+
     		up.refresh(); // Reposition Flash/Silverlight，这里刷新了还是啥子的
     	});
 	
-     uploader.bind('QueueChanged', function(up) { //这里看起来是文件被改名后的事件
+     	uploader.bind('QueueChanged', function(up) { //这里看起来是文件被改名后的事件
 		uploader.trigger("CheckFiles", up);
      });
       
-     uploader.bind('StateChanged', function(up) { // SLBoat:状态改变了。。通常是上传的状态改变了
+    uploader.bind('StateChanged', function(up) { // SLBoat:状态改变了。。通常是上传的状态改变了
 		if(msu_vars.debugMode == 'true') console.log(up.state);
 		
 		if (up.files.length === (up.total.uploaded + up.total.failed)) {  // SLBoat:全部上传完毕后的一次触发，在这里看起来只被用来做调试输出
@@ -184,7 +191,7 @@ function createUpload(wikiEditor){
 				
 			} else {
 			
-			//alert(result.upload.result);
+			//console.log(result.upload.result); // SLBoat: V9.4作者改成了有趣的方式
 			/*{"upload":{"result":"Success",
 						"filename":"Msupload_v8.4.jpg",
 						"imageinfo":{
@@ -219,17 +226,19 @@ function createUpload(wikiEditor){
     		// SLBoat: 默认的所有文件格式啥的，插入单个文件的连接
     		$(document.createElement("a")).text(mw.msg('msu-insert_link')).click(function(e) { //click
   			    if(msu_vars.use_mslinks == 'true'){ // SLBoat: 这里的ms是啥意思
-  			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // 仅仅是插入文件的连接	
-  			    } else {
-					// SLBoat: 换成中文的文件名？那不完全失去了国际性
-					msu_vorlage_insert('[[:File:'+file.name+']]','',''); // SLBoat: 单个文件插入——这里与图片是隔开的，只是插入链接
+  			    	mw.toolbar.insertTags( '{{#l:'+file.name+'}}', '', '', '' ); // 仅仅是插入文件的连接	
+  			    } else {// SLBoat: 换成中文的文件名？那不完全失去了国际性
+  			    	mw.toolbar.insertTags( '[[:File:'+file.name+']]', '', '', '' ); // SLBoat: 单个文件插入——这里与图片是隔开的，只是插入链接
   			    }
   			    
         	}).appendTo(file.li);
     		
             if (file.group == "pic"){ //只对图片又批量插入的功能
-        		  
-        		gallery_arr.push(file.name); //push 置入到数组里..仅仅置入文件名,因为已经上传成功
+        		// SLBoat: 这是作者的神奇的预览功能！哇喔！
+        		file.li.type.addClass('picture_load');
+            	file.li.type.html('<img src="'+result.upload.imageinfo.url+'" height="18">');
+        		gallery_arr.push(file.name); //push 置入到数组里..仅仅置入文件名,因为已经上传成功	
+
 
         		//问题出在这里,拥有两个文件的时候进行添加,但是删除的时候依然如此
         		  		
@@ -237,6 +246,7 @@ function createUpload(wikiEditor){
 							gallery_insert.unbind("click"); //取消上次绑定,这是个比较土的临时方案
 	        		  		gallery_insert.click(function(e) { //click
 	  			
+	  							//console.log(gallery_arr); // SLBoat: 作者增加的调试信息
 	  							add_gallery(); //to take always the actual list
 
 	        				}).text(mw.msg('msu-insert_gallery')).show();
@@ -249,8 +259,8 @@ function createUpload(wikiEditor){
         		$(document.createElement("span")).text(' | ').appendTo(file.li);
         		$(document.createElement("a")).text(mw.msg('msu-insert_picture')).click(function(e) { //click
         			
-        			//msu_vorlage_insert('[[File:'+file.name+msu_vars.imgParams+']]','',''); //V9.3 增加了图片的尺寸
-					msu_vorlage_insert(':[[File:'+file.name+']]','',''); //SLboat - 插入单张图片，仅仅单张图片
+        			//mw.toolbar.insertTags('[[File:'+file.name+msu_vars.imgParams+']]','','',''); //V9.3 增加了图片的尺寸
+					mw.toolbar.insertTags(':[[File:'+file.name+']]','','',''); //SLboat - 插入单张图片，仅仅单张图片
         		
         		}).appendTo(file.li);
         		
@@ -261,7 +271,7 @@ function createUpload(wikiEditor){
         		$(document.createElement("span")).text(' | ').appendTo(file.li); //这是电影的特别玩意，改变图标文字
         		$(document.createElement("a")).text(mw.msg('msu-insert_movie')).click(function(e) { //click
 
-        			msu_vorlage_insert(':[[File:'+file.name+']]','','');
+        			mw.toolbar.insertTags( ':[[File:'+file.name+']]','','','');
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
         	} else if (file.group == "music") { //音频见识在这里
