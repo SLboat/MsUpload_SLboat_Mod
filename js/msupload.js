@@ -243,7 +243,6 @@ function createUpload(wikiEditor){
         		//问题出在这里,拥有两个文件的时候进行添加,但是删除的时候依然如此
         		  		
         		  if(gallery_arr.length== 2){ //only at first time add click function
-							gallery_insert.unbind("click"); //取消上次绑定,这是个比较土的临时方案
 	        		  		gallery_insert.click(function(e) { //click
 	  			
 	  							//console.log(gallery_arr); // SLBoat: 作者增加的调试信息
@@ -280,7 +279,7 @@ function createUpload(wikiEditor){
 				// SLBoat: 插入一个按钮-第二按钮
         		$(document.createElement("a")).text(mw.msg('msu-insert_music')).click(function(e) { //click
 
-        			msu_vorlage_insert(':[[File:'+file.name+']]','',''); // SLBoat: 换成文件，在未来
+        			mw.toolbar.insertTags(':[[File:'+file.name+']]','','',''); // SLBoat: 换成文件，在未来
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
 
@@ -290,7 +289,7 @@ function createUpload(wikiEditor){
 				// SLBoat: 插入一个按钮-第二按钮
         		$(document.createElement("a")).text(mw.msg('msu-insert_file')).click(function(e) { //click
 
-        			msu_vorlage_insert(':[[File:'+file.name+']]','','');
+        			mw.toolbar.insertTags(':[[File:'+file.name+']]','','','');
         			
         		}).appendTo(file.li);// SLBoat: 创建插入影片按钮
 
@@ -319,42 +318,54 @@ function createUpload(wikiEditor){
 	   	if(msu_vars.debugMode == 'true') console.log(up.files.length);
 
 	    if(gallery_arr.length >= 2){ 
+	    	spacer2.show();	// SLBoat: V9.4增加了第一个小空格
 	    	gallery_insert.show();
-	        spacer.show();	
 	   	}else{
-	   		spacer.hide();
          	gallery_insert.hide();
+         	spacer2.hide();	
 	   	}
 	   	
 	    if (up.files.length==1){	// SLBoat:只有一个文件的时候，显示插入图片
-        	bottom_div.show();
         	start_button.text(mw.msg('msu-upload_this')).show();
+        	spacer1.show();	
         } else if (up.files.length>1){ // SLBoat:不止一个文件的时候，显示插入全部的
-        	bottom_div.show();
         	start_button.text(mw.msg('msu-upload_all')).show();
+        	spacer1.show();	
+
         } else { // SLBoat:别的情况，全部隐起来咯
-        	//bottom_div.hide();
          	start_button.hide();
          	if(gallery_arr.length < 2){ 
-	    	bottom_div.hide();
+	    	//bottom_div.hide(); // SLBoat: 看起来不再有用了
 	    	}
          	
         }
-        
-        up.refresh(); // SLBoat:进行刷新，看起来对于flash之类的很要紧
-	 });
-    		  //绑定清空事件	
-    	$('#gallery_clean').click(function(e) {
-			/*---注销麻烦的对话框，它不是个好主意
-			if (!(confirm(mw.msg("msu-clean_confirm"))))
-			{
-				return false;
-			}
-			*/
-			// SLBoat:虽然这些删除实际只是隐藏、去除索引，但还是很酷的
-			$(".green.file:not([style])>.file-cancel").click(); // SLBoat:清空可以取消的文件
-			$(".yellow.file").attr("style","display:none"); // SLBoat:清空黄色文件
-			$(".file:not([style])[class='file']>.file-cancel").click(); // SLBoat:清空所有待上传的文件，这样看起来很不错:)
+        // SLBoat: V9.4官方的删除方式，更彻底的处理了文件的清理
+        if (up.files.length>0){
+        	bottom_div.show();
+	        clean_all.text(mw.msg('msu-clean_all')).click(function(e){
+	        				
+				
+				gallery_arr.length = 0; // zurücksetzen
+				
+				if(up.files.length > 0) {
+				//	bottom_div.hide();
+					$.each(up.files, function(i, file){// SLBoat: 非常巧妙，因为所有的file就在这里，一个长久的困扰由此揭开
+						up.removeFile(file);
+						up.refresh(); 
+						//file.li.hide("slow");
+					});
+				}
+				
+				$('#upload_list .file').hide("slow");
+				$(this).hide();
+				bottom_div.hide();
+				uploader.trigger("CheckFiles", uploader);
+				gallery_insert.unbind('click');
+				
+	       	}).show();
+       } 
+       		
+        up.refresh();// SLBoat: 再次刷新一下
     	});	
 
     	
@@ -381,7 +392,7 @@ function add_gallery(){ //插入整个相册就在这里了，而这里将变成
 	//去除BR标记，不再需要
 	gallery_text += gallery_arr.join("]]\n:[[Image:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
 	gallery_text +=']]';//最后一个标签的右边部分
-	msu_vorlage_insert(gallery_text,'\n','\n');  //插入头部和尾部
+	mw.toolbar.insertTags(gallery_text,'\n','\n','');  //插入头部和尾部
 }
 //检查文件后缀
 function check_extension(file,uploader){
@@ -403,7 +414,8 @@ function check_extension(file,uploader){
 	       	 		file.li.type.addClass('picture_ios6');
 				}else{
 					file.li.type.addClass('picture');
-				}            	break;
+				}            	
+				break;
 			  case 'mov':
        	 		file.group = "mov"; //电影文件
        	 		file.li.type.addClass('film');
@@ -452,7 +464,8 @@ function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
           //file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
               		         
           sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename],  // SLBoat:检查是否重复文件名
-        		function (result) {
+        		function (result)
+ {
         		warning = result.responseText.replace(/(<([^>]+)>)/ig,"");// SLBoat:初次过滤的信息
 				// SLBoat:整理掉该死的strong返回玩意，alex见证
 				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt;","]]");
@@ -499,7 +512,7 @@ function build(file){
       //}
 
       //autokat
-      if(msu_vars.autoKat){ //自动分类，如果是分类页的话-开启
+      if(msu_vars.autoKat){ // SLBoat: 自动分类，如果是分类页的话-开启，它看起来并不是那么实用
       	file.kat = false;
         if(wgNamespaceNumber==14){ //category page
         	
@@ -534,7 +547,7 @@ function build(file){
 	          //id: 'input_change-'+file.id,
 	          name:'filename', // SLBoat:这是它的输入框name属性，类似于ID
 	          value:file.name // SLBoat:似乎是赋予初始化值
-        	}).insertAfter($(this));  // SLBoat:this真有趣
+        	}).insertAfter($(this));  // SLBoat:this真有趣，看起来就是自身
         
 	        input_change.change(function(e) {  //处理了文件变更-直接针对filename
 	        
