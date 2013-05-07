@@ -352,7 +352,7 @@ function createUpload(wikiEditor){
 					var all_files = up.files;// SLboat: 提前保留一份
 					for (file in all_files) // SLboat: 需要用老的来一次性完成
 					{
-						up.removeFile(up.files[file]);
+						up.removeFile(all_files[file]);
 						up.refresh(); 					
 					}
 				}
