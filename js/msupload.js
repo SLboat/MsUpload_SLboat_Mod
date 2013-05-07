@@ -40,7 +40,7 @@ function createUpload(wikiEditor){
 	    var spacer = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
 	    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
 		//加上清除按钮到最后
-		var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_gallery')).appendTo(bottom_div);
+		var gallery_clean = $(document.createElement("a")).attr("id","gallery_clean").text(mw.msg('msu-clean_all')).appendTo(bottom_div);
 
         var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',

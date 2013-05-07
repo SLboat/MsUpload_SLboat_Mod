@@ -36,26 +36,25 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
 	'url'  => 'http://see.sl088.com/wiki/%E6%89%A9%E5%B1%95:MsUpload',
 	'descriptionmsg' => 'msu-desc',
-	'version' => '9.3 SLboat Mod',
+	'version' => '9.4 SLboat Mod',
 	'author' => '[mailto:msupload@ratin.de info@ratin.de] | [http://www.ratin.de/msupload.html Ratin]',
 );
 
 $dir = dirname(__FILE__).'/';
 //$wgAvailableRights[] = 'msupload';
 $wgExtensionMessagesFiles['msu'] = $dir . 'msupload.i18n.php';
+
 $wgHooks['EditPage::showEditForm:initial'][] = 'MSLSetup';
 require_once($dir.'msupload.body.php');
-//$wgAutoloadClasses['msupload'] = $dir . 'msupload.body.php';
-
 
 $wgResourceModules['ext.MsUpload'] = array(
         // JavaScript and CSS styles.
-        'scripts' => array( 'js/msupload.insert.js', 'js/plupload/plupload.full.js', 'js/msupload.js' ),
-        'styles' => array( 'css/jquery.css', 'css/msupload.css' ),
+        'scripts' => array( 'js/plupload/plupload.full.js', 'js/msupload.js' ),
+        'styles' => array('css/msupload.css' ),
         // When your module is loaded, these messages will be available through mw.msg()
 		// 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
         'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: 这里依然是官方的尾巴部分
-		'msu-clean_gallery', 'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: 这里是森亮号的Mod了
+		'msu-clean_all', 'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: 这里是森亮号的Mod了
 		// SLBoat: 依赖进度栏插件，少了可不行
 		 'dependencies' => array( 'jquery.ui.progressbar' ),
         // subdir relative to "/extensions"
@@ -66,16 +65,12 @@ $wgResourceModules['ext.MsUpload'] = array(
  
 function MSLSetup() {
 
-  global $wgOut, $wgScriptPath;
-  //global $wgVersion;
-  //$version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
+  global $wgOut, $wgScriptPath, $wgJsMimeType, $wgMSL_FileTypes;
   $path =  $wgScriptPath.'/extensions/MsUpload';
-  $dir = dirname(__FILE__).'/';
-  
   //load module
   $wgOut->addModules( 'ext.MsUpload' );
   
-  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSL_FileTypes, $wgJsMimeType, $wgMSU_debug, $wgMSU_ImgParams;
+  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSU_debug, $wgMSU_ImgParams, $wgMSU_UseDragDrop;
   
   $use_MsLinks = 'false';
   if(isset($wgMSL_FileTypes)){$use_MsLinks = 'true';} //check whether the extension MsLinks is installed
@@ -90,10 +85,10 @@ function MSLSetup() {
 		'autoChecked' => BoolToText($wgMSU_CheckedAutoKat),
 		'debugMode' => BoolToText($wgMSU_debug),
 		'imgParams' => $wgMSU_ImgParams	//图片参数
+		'dragdrop' => BoolToText($wgMSU_UseDragDrop)// SLBoat: 是否开启拖放栏，未使用这个
 	);
 
 	$msu_vars = json_encode($msu_vars);
-	
     $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">var msu_vars = $msu_vars;</script>\n" );
   
   return true;
