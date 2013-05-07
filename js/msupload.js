@@ -39,10 +39,10 @@ function createUpload(wikiEditor){
 	    var bottom_div = $(document.createElement("div")).attr("id","upload_bottom").appendTo(upload_div).hide(); 
 	    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
 	    var spacer1 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
-    	var clean_all = $(document.createElement("a")).attr("id","clean_all").text(mw.msg('msu-clean_all')).appendTo(bottom_div).hide();	
-		// SLboat: 这是作者引入的清除按钮
 		var spacer2 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
 	    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
+		// SLboat: 这是作者引入的清除按钮，我们让它在最后面
+    	var clean_all = $(document.createElement("a")).attr("id","clean_all").text(mw.msg('msu-clean_all')).appendTo(bottom_div).hide();	
 
         var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',
@@ -344,7 +344,7 @@ function createUpload(wikiEditor){
         	bottom_div.show();
 	        clean_all.text(mw.msg('msu-clean_all')).click(function(e){
 	        				
-				
+				/* V9.4 的作者方式，但是太卡了
 				gallery_arr.length = 0; // zurücksetzen
 				
 				if(up.files.length > 0) {
@@ -361,6 +361,20 @@ function createUpload(wikiEditor){
 				$(this).hide();
 				bottom_div.hide();
 				uploader.trigger("CheckFiles", uploader);
+				//表现太糟糕了，卡死 */
+
+				/*---注销麻烦的对话框，它不是个好主意
+				if (!(confirm(mw.msg("msu-clean_confirm"))))
+				{
+					return false;
+				}
+				*/
+				// SLBoat:虽然这些删除实际只是隐藏、去除索引，但还是很酷的
+				$(".green.file:not([style])>.file-cancel").click(); // SLBoat:清空可以取消的文件
+				$(".yellow.file").attr("style","display:none"); // SLBoat:清空黄色文件
+				$(".file:not([style])[class='file']>.file-cancel").click(); // SLBoat:清空所有待上传的文件，这样看起来很不错:)
+				bottom_div.hide();
+
 				gallery_insert.unbind('click');
 				
 	       	}).show();
