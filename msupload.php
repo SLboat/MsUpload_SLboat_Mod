@@ -84,7 +84,7 @@ function MSLSetup() {
     	'autoIndex' => 'false', #BoolToText($wgMSU_AutoIndex);
 		'autoChecked' => BoolToText($wgMSU_CheckedAutoKat),
 		'debugMode' => BoolToText($wgMSU_debug),
-		'imgParams' => $wgMSU_ImgParams	//图片参数
+		'imgParams' => $wgMSU_ImgParams,	//图片参数
 		'dragdrop' => BoolToText($wgMSU_UseDragDrop)// SLBoat: 是否开启拖放栏，未使用这个
 	);
 
