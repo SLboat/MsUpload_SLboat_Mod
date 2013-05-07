@@ -408,7 +408,7 @@ function add_gallery(){ //插入整个相册就在这里了，而这里将变成
 	//去除BR标记，不再需要
 	gallery_text += gallery_arr.join("]]\n:[[Image:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
 	gallery_text +=']]';//最后一个标签的右边部分
-	mw.toolbar.insertTags(gallery_text,'\n','\n','');  //插入头部和尾部
+	mw.toolbar.insertTags('\n', gallery_text, '\n', '');  //插入头部和尾部
 }
 //检查文件后缀
 function check_extension(file,uploader){
