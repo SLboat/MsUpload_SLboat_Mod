@@ -464,8 +464,7 @@ function check_file(filename,file_li){ // SLBoat:检查文件信息的玩意
           //file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
               		         
           sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename],  // SLBoat:检查是否重复文件名
-        		function (result)
- {
+        		function (result) {
         		warning = result.responseText.replace(/(<([^>]+)>)/ig,"");// SLBoat:初次过滤的信息
 				// SLBoat:整理掉该死的strong返回玩意，alex见证
 				warning = warning.replace("&lt;strong&gt;","[[").replace("&lt;/strong&gt;","]]");

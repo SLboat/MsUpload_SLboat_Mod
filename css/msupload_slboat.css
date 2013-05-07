@@ -1,14 +1,14 @@
-/* É­ÁÁºÅMod¶îÍâµÄCSS 
- * ÎªÁË½µµÍCSSµÄ»ìÂÒ£¬ÕâÀïÊÇ¶îÍâµÄĞŞ¸Ä
- * ¶øÔ­Ê¼µÄÔò²»È¥¶¯ÓÃËü
+/* æ£®äº®å·Modé¢å¤–çš„CSS 
+ * ä¸ºäº†é™ä½CSSçš„æ··ä¹±ï¼Œè¿™é‡Œæ˜¯é¢å¤–çš„ä¿®æ”¹
+ * è€ŒåŸå§‹çš„åˆ™ä¸å»åŠ¨ç”¨å®ƒ
  */
 
-/* ÒıÈëÖÆÍ¼Ô±alexµÄiosÍ¼±ê-SLboat Mod */
+/* å¼•å…¥åˆ¶å›¾å‘˜alexçš„ioså›¾æ ‡-SLboat Mod */
 #upload_list .file .picture_ios6 {
   background: url(../images/msu_document-image_ios6.png) no-repeat 0 0;
 }
 
-/* ÒıÈëÖÆÍ¼Ô±alexµÄÒôÀÖÍ¼±ê-SLboat Mod */
+/* å¼•å…¥åˆ¶å›¾å‘˜alexçš„éŸ³ä¹å›¾æ ‡-SLboat Mod */
 #upload_list .file .music {
   background: url(../images/msu_document-music.png) no-repeat 0 0;
 }
