@@ -50,7 +50,7 @@ require_once($dir.'msupload.body.php');
 $wgResourceModules['ext.MsUpload'] = array(
         // JavaScript and CSS styles.
         'scripts' => array( 'js/plupload/plupload.full.js', 'js/msupload.js' ),
-        'styles' => array('css/msupload.css' ),
+        'styles' => array('css/msupload.css','css/msupload_slboat.css'), // SLBoat: 森亮号增加的CSS就放在这里了
         // When your module is loaded, these messages will be available through mw.msg()
 		// 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
         'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: 这里依然是官方的尾巴部分

@@ -1,0 +1,14 @@
+/* 森亮号Mod额外的CSS 
+ * 为了降低CSS的混乱，这里是额外的修改
+ * 而原始的则不去动用它
+ */
+
+/* 引入制图员alex的ios图标-SLboat Mod */
+#upload_list .file .picture_ios6 {
+  background: url(../images/msu_document-image_ios6.png) no-repeat 0 0;
+}
+
+/* 引入制图员alex的音乐图标-SLboat Mod */
+#upload_list .file .music {
+  background: url(../images/msu_document-music.png) no-repeat 0 0;
+}
