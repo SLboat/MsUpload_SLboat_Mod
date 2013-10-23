@@ -91,8 +91,9 @@ function createUpload(wikiEditor){
     	});
 
       uploader.bind('FilesAdded', function(up, files) { // SLboat:文件添加后的事件，看起来就在这里进行处理了
-			var file_index = 0; // SLboat-森亮号IOS修改: 初始化文件的索引为0
-    		$.each(files, function(i, file){
+      		/* 这里有很大的改变-森亮号增加了倒序玩意 */
+			/** 这里处理单个文件添加,index-序号,file-文件 **/
+    		var add_file = function(index, file){
 				// SLboat:这里的file是完整的file类，它有所有的属性
 
 				/*  森亮号IOS修改
@@ -102,12 +103,13 @@ function createUpload(wikiEditor){
 				* @done：简化到一个函数里面-直接交由isIOS函数来处理
 				*/
 				if (isIOS(file.name)){
-					file.name=getTimeFileName(file_index);// SLboat:引入新文件名
+					file.name=getTimeFileName(index);// SLboat:引入新文件名
 				}				
 
 				// SLboat:开始显示出来到列表里-展现所有添加的文件
     			file.li = $(document.createElement("li")).attr("id",file.id).attr("class","file").appendTo(upload_list);
 	            
+	            // 这里或许可以用更原生的jquery方法来改写呢
 	            file.li.type = $(document.createElement("span")).attr("class","file-type").appendTo(file.li);
 	            file.li.title = $(document.createElement("span")).attr("class","file-title").text(file.name).appendTo(file.li);
 	            file.li.size = $(document.createElement("span")).attr("class","file-size").text(plupload.formatSize(file.size)).appendTo(file.li);
@@ -115,9 +117,14 @@ function createUpload(wikiEditor){
 	            file.li.warning = $(document.createElement("span")).attr("class","file-warning").appendTo(file.li);
 	            
 	            check_extension(file,up);  // SLboat:检查文件后缀
-            	file_index++; // SLboat森亮号IOS修改:索引加1
-    		});
+    		};
+    		/** 开始处理了 **/    					
+			for (var i=files.length-1; i>=0; i--){ //正序处理
+				file=files[i];
+				add_file(i,file); //添加这个文件
+			}
 
+			/** 在这里看起来最重要的就是up了,它是整个处理的函数 **/
     		up.refresh(); // Reposition Flash/Silverlight，这里刷新了还是啥子的
     		up.trigger("CheckFiles"); //V9.5 作者增加了触发检查文件(难道不会自动检测了?)
     	});
