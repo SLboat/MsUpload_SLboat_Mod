@@ -73,8 +73,8 @@ function createUpload(wikiEditor){
 	    	if(msu_vars.debugMode){
     		status_div.html("<b>Debug</b> runtime: " + up.runtime + " features: "+ JSON.stringify(up.features)).show();
     		}
-	        // SLboat: 显示拖放区域,包括提醒灯,我们修改了在IOS6上不需要显示这个，显示也没啥用
-    		if(up.features.dragdrop && !isIOS6()  && msu_vars.dragdrop){ // SLboat:支持拖放
+	        // SLboat: 显示拖放区域,包括提醒灯,我们修改了在IOS上不需要显示这个，显示也没啥用
+    		if(up.features.dragdrop && !isIOS()  && msu_vars.dragdrop){ // SLboat:支持拖放
 	        	upload_drop.text(mw.msg('msu-dropzone')).show();
 	        	upload_drop.bind('dragover',function(event){
 					   $(this).addClass('drop_over').css('padding','20px');
@@ -91,17 +91,17 @@ function createUpload(wikiEditor){
     	});
 
       uploader.bind('FilesAdded', function(up, files) { // SLboat:文件添加后的事件，看起来就在这里进行处理了
-			var file_index = 0; // SLboat-森亮号IOS6修改: 初始化文件的索引为0
+			var file_index = 0; // SLboat-森亮号IOS修改: 初始化文件的索引为0
     		$.each(files, function(i, file){
 				// SLboat:这里的file是完整的file类，它有所有的属性
 
-				/*  森亮号IOS6修改
+				/*  森亮号IOS修改
 				* 当为iPad平台的情况下，文件名包含image并且小于7个字符的情况下，进行自动命名文件名
 				* 它的缺陷是它无法再判断是否上传过一样的文件了
 				* 它的默认的名字是 iamge.jpg 9个字符长度
-				* @done：简化到一个函数里面-直接交由isIOS6函数来处理
+				* @done：简化到一个函数里面-直接交由isIOS函数来处理
 				*/
-				if (isIOS6(file.name)){
+				if (isIOS(file.name)){
 					file.name=getTimeFileName(file_index);// SLboat:引入新文件名
 				}				
 
@@ -115,7 +115,7 @@ function createUpload(wikiEditor){
 	            file.li.warning = $(document.createElement("span")).attr("class","file-warning").appendTo(file.li);
 	            
 	            check_extension(file,up);  // SLboat:检查文件后缀
-            	file_index++; // SLboat森亮号IOS6修改:索引加1
+            	file_index++; // SLboat森亮号IOS修改:索引加1
     		});
 
     		up.refresh(); // Reposition Flash/Silverlight，这里刷新了还是啥子的
@@ -574,27 +574,27 @@ function build(file){
     
 }
 
-/* 森亮号IOS6修改函数
- * 作用：判断是否为IOS6配套
+/* 森亮号IOS修改函数
+ * 作用：判断是否为IOS配套
  * 判断依据：
                    1. 浏览器标识为iPad，或者iPhone
 				   2. 图片名称为image开头
 				   3. 图片名称小于11个字符
- * 效果：当为IOS6的时候返回true
+ * 效果：当为IOS的时候返回true
  * 参数：传入文件名实际参数为file_name
  */
-function isIOS6(file_name){
+function isIOS(file_name){
 	if (typeof(file_name)=="undefined")
 	{
-		file_name="image.jpg"; // 未定义的时候强制为默认名字-就认ios6
+		file_name="image.jpg"; // 未定义的时候强制为默认名字-就认IOS
 	}
 	// return true; //just for test
 	return (navigator.platform == "iPad" || navigator.platform == "iPhone") && file_name.indexOf("image")==0 && file_name.length<11
 }
 
-/* 森亮号IOS6修改函数
+/* 森亮号IOS修改函数
 * 作用：获得一个文件名标记的时间
-* 效果：得到的文件名类似SLboat_ios6_2013-1-3_23.26.13_0.jpg
+* 效果：得到的文件名类似SLboat_IOS_2013-1-3_23.26.13_0.jpg
 * 参数：传入参数file_index为所在的文件序号
 */
 function getTimeFileName(file_index){
@@ -602,7 +602,7 @@ function getTimeFileName(file_index){
 	{
 		file_index = 0; // 未定义的时候得到0 
 	}
-	// 文件名后缀，暂时只处理jpg，因为ios6的相册都是jpg
+	// 文件名后缀，暂时只处理jpg，因为IOS的相册都是jpg
 	var file_ext = ".jpg"; 
 	//得到一个新的时间类
 	var now = new Date(); 
@@ -611,10 +611,10 @@ function getTimeFileName(file_index){
 	//获得时间串
 	var timestr = now.getHours() + "." + now.getMinutes() + "." + now.getSeconds();
 	//得到最终的新文件名
-	return "SLboat_ios6_" + datastr +"_" + timestr +"_" + file_index + file_ext
+	return "SLboat_IOS_" + datastr +"_" + timestr +"_" + file_index + file_ext
 }
 
-/* 森亮号IOS6修改函数
+/* 森亮号IOS修改函数
 * 作用：自动添加分类的备注里
 * 效果：输出+\n+分类
 * 例如：
