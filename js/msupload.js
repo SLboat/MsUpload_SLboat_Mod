@@ -99,9 +99,9 @@ function createUpload(wikiEditor){
       uploader.bind('FilesAdded', function(up, files) { // SLboat:文件添加后的事件，看起来就在这里进行处理了
 			//if checked,we will start sort the files
 			//todo:maybe use localeCompare?
-			if ($("#sort_files").prop("checked")){
+			if ($("#sort_files").prop("checked")) {
 				files.sort(function(file1, file2) {
-					return file1.name > file2.name;
+					return file1.name > file2.name ? 1 : -1;
 				})
 			}
     		$.each(files, function(i, file){
