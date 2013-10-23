@@ -42,11 +42,9 @@
 	cursor:pointer;
 }
 
-
 #upload_div.nodragdrop{
 	border:none;
 }
-
 
 #upload_drop{
   margin:3px;
@@ -79,7 +77,6 @@
 	line-height: 2em;
 	box-shadow: 0 -45px 62px -62px rgba(0, 0, 0, 0.35) inset, 0 1px 0 rgba(255, 255, 255, 0.6);
 	background:#DEE9E9;
-	
 	padding: 1px 0px 1px 10px;
 	border-top: 1px solid #eee;
 	border-bottom: 1px solid #ddd;
@@ -99,9 +96,10 @@
 }
 
 #upload_list .file .file-type{
-  padding:1px 10px;
+  padding:10px;
   background: url(../images/msu_document-globe.png) no-repeat 0 0;
-  margin-right: 5px;
+  position: absolute;
+  margin-top: 5px;
 }
 
 #upload_list .file .picture {
@@ -130,16 +128,18 @@
 
 #upload_list .file .picture_load {
   background:none;
-  padding:0px;
-  padding-top:2px;
+  padding:2px;
   height:22px;
-  overflow: hidden;
-  margin:0px;
+  margin:1px;
+}
+
+#upload_list .file .picture_load canvas{
+	margin:1px;
 }
 
 #upload_list .file .file-title {
   font-weight: bold;
-  margin-left: 5px;
+  margin-left: 35px;
 }
 
 #upload_list .file .title_over {

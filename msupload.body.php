@@ -3,7 +3,7 @@
  * Body file for extension MsUpload.
  *  
  * @author Martin Schwindl  <martin.schwindl@ratin.de> 
- * @copyright ï¿½ 2012 by Martin Schwindl
+ * @copyright 2013 by Martin Schwindl
  *
  * @licence GNU General Public Licence 2.0 or later
  */
@@ -14,15 +14,15 @@ if( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
-//è‡ªåŠ¨ä¿å­˜ä¸Šä¼ åˆ†ç±»
-function wfMsUploadSaveKat($name,$kat) { // SLBoat:ä¿®æ”¹ç±»çš„ç©æ„ï¼Œçœ‹èµ·æ¥æ˜¯
+//×Ô¶¯±£´æÉÏ´«·ÖÀà,ÕâÀï¿´ÆğÀ´µ¼³öÁËÒ»¸öjs api
+function wfMsUploadSaveKat($name,$kat) { // SLBoat:ĞŞ¸ÄÀàµÄÍæÒâ£¬¿´ÆğÀ´ÊÇ
 
         global $wgContLang,$wgUser;
         
         $mediaString = strtolower( $wgContLang->getNsText( NS_FILE ) );
         
         $title = $mediaString.':'.$name;
-        $text = "\n[[".$kat."]]"; // SLBoat:å›è½¦ç„¶ååŠ ä¸Šç±»åˆ«çš„ç©æ„
+        $text = "\n[[".$kat."]]"; // SLBoat:»Ø³µÈ»ºó¼ÓÉÏÀà±ğµÄÍæÒâ
 
         $wgEnableWriteAPI = true;    
         $params = new FauxRequest(array (

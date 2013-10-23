@@ -197,3 +197,63 @@ $messages['ja'] = array(
         'msu-dropzone' => 'ファイルをここにドロップしてください',
         'msu-comment' => 'MsUpload',
 );
+
+
+/** Français (French)
+ * @author Marc MORA
+ */
+$messages['fr'] = array(
+        'msu-desc' => 'Permet le téléversement facile (si valable le drag&drop aussi) pour un ou plusieurs fichiers',
+        'msu-button_title' => 'Sélectionnez les fichiers',
+        'msu-insert_link' => 'Insère le lien',
+        'msu-insert_gallery' => 'Insère les images en gallery',
+        'msu-insert_picture' =>  'Insère l\'image',
+        'msu-insert_movie' => 'Insère un film',
+        'msu-cancel_upload' => 'Annule téléversement',
+        'msu-upload_possible' => 'Ce fichier peut être téléversé',
+        'msu-ext_not_allowed' => 'Seuls les types suivants sont autorisés:',
+        'msu-upload_this' => 'Click ici pour téléverser le fichier',
+        'msu-upload_all' => 'Click ici pour téléverser tous les fichiers',
+        'msu-dropzone' => 'Glisser ici les fichiers',
+        'msu-comment' => 'MsUpload',
+);
+ 
+/** עברית (Hebrew)
+ * @author JNF
+ */
+$messages['he'] = array(
+                'msu-desc' => 'מאפשר העלאת קבצים בקלות. כולל אפשרות לקבצים מרובים וממשק גרירת קבצים',
+        'msu-button_title' => 'בחרו קבצים',
+        'msu-insert_link' => 'הכנס קישור',
+        'msu-insert_gallery' => 'הפוך תמונות לגלריה',
+        'msu-insert_picture' =>  'הכנס תמונה',
+        'msu-insert_movie' => 'הכנס סרטון',
+        'msu-cancel_upload' => 'בטל העלאה',
+        'msu-clean_all' => 'נקה רשימה',
+        'msu-upload_possible' => 'הקובץ ניתן להעלאה',
+        'msu-ext_not_allowed' => 'רק סוגי הקבצים הבאים מורשים:',
+        'msu-upload_this' => 'לחצו כאן להעלאת קובץ זה',
+        'msu-upload_all' => 'לחצו כאן להעלאת כל הקבצים',
+        'msu-dropzone' => 'גררו קבצים לכאן',
+        'msu-comment' => 'MsUpload',
+);
+
+/** Lietuvių (Lithuanian)
+ * @author Vitas Povilaitis
+ */
+$messages['lt'] = array(
+                'msu-desc' => 'Leidžia lengviau pakrauti vieną arba keletą failų vienu metu. Yra galimybė naudoti drag&drop.',
+        'msu-button_title' => 'Pasirinkti failus',
+        'msu-insert_link' => 'Įterpti nuorodas',
+        'msu-insert_gallery' => 'Įterpti vaizdų galeriją',
+        'msu-insert_picture' =>  'Įterpti vaizdą',
+        'msu-insert_movie' => 'Įterpti filmą',
+        'msu-cancel_upload' => 'Nutraukti pakrovimą',
+        'msu-clean_all' => 'Išvalyti sąrašą',
+        'msu-upload_possible' => 'Failai gali būti pakrauti',
+        'msu-ext_not_allowed' => 'Leidžiami tik sekantys failų tipai:',
+        'msu-upload_this' => 'Paspausk, kad pakrauti šį failą',
+        'msu-upload_all' => 'Paspausk, kad pakrauti visus failus',
+        'msu-dropzone' => 'Čia užtemk failus',
+        'msu-comment' => 'MsUpload',
+);
