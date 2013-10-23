@@ -45,7 +45,7 @@ function createUpload(wikiEditor){
 		var spacer2 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
 		var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
 		var upload_drop = $(document.createElement("div")).attr("id","upload_drop").insertAfter(status_div).hide();
-	     
+
         var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash,silverlight,html4',
     		browse_button : 'upload_select',
@@ -83,6 +83,8 @@ function createUpload(wikiEditor){
 				}).bind('drop',function(event){
 					   $(this).removeClass('drop_over').css('padding','0px');
 				});
+			    //Now Insert the file sort check box will be a good time
+			    $('<span id="upload_sort" style="float: right; color: rgba(235, 82, 112, 0.89);"><input type="checkbox" id="sort_files">Sort the drag files</span>').appendTo("#upload_drop");
 
 	       	}else{
 	       		upload_div.addClass('nodragdrop'); // SLboat: V9.4作者引入了没有拖入框
@@ -91,7 +93,13 @@ function createUpload(wikiEditor){
     	});
 
       uploader.bind('FilesAdded', function(up, files) { // SLboat:文件添加后的事件，看起来就在这里进行处理了
-
+			//if checked,we will start sort the files
+			//todo:maybe use localeCompare?
+			if ($("#sort_files").prop("checked")){
+				files.sort(function(file1, file2) {
+					return file1.name > file2.name;
+				})
+			}
     		$.each(files, function(i, file){
 				// SLboat:这里的file是完整的file类，它有所有的属性
 
