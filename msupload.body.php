@@ -14,15 +14,15 @@ if( !defined( 'MEDIAWIKI' ) ) {
 }
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
-//×Ô¶¯±£´æÉÏ´«·ÖÀà,ÕâÀï¿´ÆğÀ´µ¼³öÁËÒ»¸öjs api
-function wfMsUploadSaveKat($name,$kat) { // SLBoat:ĞŞ¸ÄÀàµÄÍæÒâ£¬¿´ÆğÀ´ÊÇ
+//è‡ªåŠ¨ä¿å­˜ä¸Šä¼ åˆ†ç±»,è¿™é‡Œçœ‹èµ·æ¥å¯¼å‡ºäº†ä¸€ä¸ªjs api
+function wfMsUploadSaveKat($name,$kat) { // SLBoat:ä¿®æ”¹ç±»çš„ç©æ„ï¼Œçœ‹èµ·æ¥æ˜¯
 
         global $wgContLang,$wgUser;
         
         $mediaString = strtolower( $wgContLang->getNsText( NS_FILE ) );
         
         $title = $mediaString.':'.$name;
-        $text = "\n[[".$kat."]]"; // SLBoat:»Ø³µÈ»ºó¼ÓÉÏÀà±ğµÄÍæÒâ
+        $text = "\n[[".$kat."]]"; // SLBoat:å›è½¦ç„¶ååŠ ä¸Šç±»åˆ«çš„ç©æ„
 
         $wgEnableWriteAPI = true;    
         $params = new FauxRequest(array (

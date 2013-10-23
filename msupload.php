@@ -50,12 +50,12 @@ require_once($dir.'msupload.body.php');
 $wgResourceModules['ext.MsUpload'] = array(
         'scripts' => array( 'js/plupload/plupload.full.min.js', 'js/msupload.js' ),
 
-        'styles' => array('css/msupload.css','css/msupload_slboat.css'), // SLBoat: É­ÁÁºÅÔö¼ÓµÄCSS¾Í·ÅÔÚÕâÀïÁË
+        'styles' => array('css/msupload.css','css/msupload_slboat.css'), // SLBoat: æ£®äº®å·å¢žåŠ çš„CSSå°±æ”¾åœ¨è¿™é‡Œäº†
         // When your module is loaded, these messages will be available through mw.msg()
-		// ×¢²áµÄÓïÑÔ×Ö·ûÉùÃ÷£¬ÕâÀïÐèÒªÔö¼ÓÇå³ý°´Å¥£¬ºÍÇå³ý°´Å¥È·ÈÏµÄÊÂ¼þ£¬ÔÚÄ©Î² - SLboat Mod
-        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-clean_all', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: ÕâÀïÒÀÈ»ÊÇ¹Ù·½µÄÎ²°Í²¿·Ö
-		'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: ÕâÀïÊÇÉ­ÁÁºÅµÄModÁË
-		// SLBoat: ÒÀÀµ½ø¶ÈÀ¸²å¼þ£¬ÉÙÁË¿É²»ÐÐ
+		// æ³¨å†Œçš„è¯­è¨€å­—ç¬¦å£°æ˜Žï¼Œè¿™é‡Œéœ€è¦å¢žåŠ æ¸…é™¤æŒ‰é’®ï¼Œå’Œæ¸…é™¤æŒ‰é’®ç¡®è®¤çš„äº‹ä»¶ï¼Œåœ¨æœ«å°¾ - SLboat Mod
+        'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-clean_all', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: è¿™é‡Œä¾ç„¶æ˜¯å®˜æ–¹çš„å°¾å·´éƒ¨åˆ†
+		'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: è¿™é‡Œæ˜¯æ£®äº®å·çš„Modäº†
+		// SLBoat: ä¾èµ–è¿›åº¦æ æ’ä»¶ï¼Œå°‘äº†å¯ä¸è¡Œ
         'dependencies' => array( 'jquery.ui.progressbar' ),
         'localBasePath' => dirname( __FILE__ ),
         'remoteExtPath' => 'MsUpload'
