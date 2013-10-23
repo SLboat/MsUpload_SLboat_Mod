@@ -54,7 +54,7 @@ $wgResourceModules['ext.MsUpload'] = array(
         // When your module is loaded, these messages will be available through mw.msg()
 		// 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
         'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-clean_all', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: 这里依然是官方的尾巴部分
-		'msu-clean_confirm','msu-insert_file','msu-insert_music'), // SLBoat: 这里是森亮号的Mod了
+		'msu-clean_confirm','msu-insert_file','msu-insert_music','msu-sort_files'), // SLBoat: 这里是森亮号的Mod了
 		// SLBoat: 依赖进度栏插件，少了可不行
         'dependencies' => array( 'jquery.ui.progressbar' ),
         'localBasePath' => dirname( __FILE__ ),
@@ -72,6 +72,8 @@ function MSLSetup() {
   global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSU_debug, $wgMSU_ImgParams, $wgMSU_UseDragDrop;
 
   $use_MsLinks = 'false';
+  $wgMSU_SortFiles = 'true'; //在这里我临时的开启它
+
   if(isset($wgMSL_FileTypes)) $use_MsLinks = 'true'; //check whether the extension MsLinks is installed
   if(!is_null($wgMSU_ImgParams)) $wgMSU_ImgParams = '|'.$wgMSU_ImgParams; //default image params
     
@@ -83,7 +85,8 @@ function MSLSetup() {
 		'autoChecked' => $wgMSU_CheckedAutoKat,
 		'debugMode' => $wgMSU_debug,
 		'imgParams' => $wgMSU_ImgParams,
-		'dragdrop' => $wgMSU_UseDragDrop
+		'dragdrop' => $wgMSU_UseDragDrop,
+		'sort_files' => $wgMSU_SortFiles, //enable the sort files,if need.
 	);
 
 	$msu_vars = json_encode($msu_vars);

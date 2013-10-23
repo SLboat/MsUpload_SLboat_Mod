@@ -12,3 +12,9 @@
 #upload_list .file .music {
   background: url(../images/msu_document-music.png) no-repeat 0 0;
 }
+
+/* 上传排序按钮 */
+#upload_sort{
+  float: right; /* 靠右 */
+  color: rgba(235, 82, 112, 0.89); /* 红色 */
+}

@@ -53,6 +53,7 @@ $messages['en'] = array(
         'msu-upload_all' => 'Click here to upload all files',
         'msu-dropzone' => 'Drop files here',
         'msu-comment' => 'MsUpload',
+		'msu-sort_files' => 'Sort the drag files', /* Here Start with SLboat mod */
 );
 
 /** Russian
@@ -83,7 +84,6 @@ $messages['zh-hans'] = array(
        'msu-insert_link' => '插入文件链接',
        'msu-insert_gallery' => '插入图片集合',
 	   'msu-insert_file' => '插入文件', // SLBoat: 只是插入文件
-   	   'msu-insert_music' => '插入音频见识', // SLBoat: 只是插入文件
 	   'msu-clean_confirm' => '是否清空所有这些？', // SLBoat: 确认删除
        'msu-insert_picture' =>  '插入图片',
        'msu-insert_movie' => '插入视频',
@@ -95,6 +95,8 @@ $messages['zh-hans'] = array(
        'msu-upload_all' => '点这里上传所有文件',
        'msu-dropzone' => '把文件带上见识的甲板',   
        'msu-comment' => '由森亮航海见识上传',
+       'msu-sort_files' => '对拖入文件排序', /* 这里是森亮号修改的开始 */
+	   'msu-insert_music' => '插入音频见识', // SLBoat: 只是插入文件
 );
 
 /** Chinese Traditional

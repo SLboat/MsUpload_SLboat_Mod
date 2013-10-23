@@ -83,8 +83,12 @@ function createUpload(wikiEditor){
 				}).bind('drop',function(event){
 					   $(this).removeClass('drop_over').css('padding','0px');
 				});
-			    //Now Insert the file sort check box will be a good time
-			    $('<span id="upload_sort" style="float: right; color: rgba(235, 82, 112, 0.89);"><input type="checkbox" id="sort_files">Sort the drag files</span>').appendTo("#upload_drop");
+				// SLboat: 如果开启了排序文件,那就注入对话框
+				if (msu_vars.sort_files){
+				    //Now Insert the file sort check box will be a good time
+					/* 在这里使用checked作为默认的选中,看起来a526604653船长也相信这点 */
+				    $('<span id="upload_sort"><input type="checkbox" id="sort_files" checked>' + mw.msg('msu-sort_files')+ '</span>').appendTo("#upload_drop");
+				}
 
 	       	}else{
 	       		upload_div.addClass('nodragdrop'); // SLboat: V9.4作者引入了没有拖入框
