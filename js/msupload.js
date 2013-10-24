@@ -87,7 +87,13 @@ function createUpload(wikiEditor){
 				if (msu_vars.sort_files){
 				    //Now Insert the file sort check box will be a good time
 					/* 在这里使用checked作为默认的选中,看起来a526604653船长也相信这点 */
-				    $('<span id="upload_sort"><input type="checkbox" id="sort_files" checked>' + mw.msg('msu-sort_files')+ '</span>').appendTo("#upload_drop");
+					var $div_sort_files = '<span id="upload_sort"><input type="checkbox" id="sort_files" class="css-checkbox" checked>';
+					$div_sort_files += '<label for="sort_files" class="css-label lite-plus">';
+					$div_sort_files += mw.msg('msu-sort_files');
+					/** 闭合标签 **/
+					$div_sort_files += '</label></span>'
+
+				    $($div_sort_files).appendTo("#upload_drop");
 				}
 
 	       	}else{

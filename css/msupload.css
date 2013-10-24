@@ -52,7 +52,8 @@
   padding:2px;
   border:1px dashed #ddd;
   text-align:center;
-  height:20px;
+  /* 原始是20px,但是换成auto,看起来更大气一些 */
+  height:auto;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   color: #fff;
 }

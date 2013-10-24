@@ -2,19 +2,38 @@
  * 为了降低CSS的混乱，这里是额外的修改
  * 而原始的则不去动用它
  */
-
 /* 引入制图员alex的ios图标-SLboat Mod */
-#upload_list .file .picture_ios6 {
-  background: url(../images/msu_document-image_ios6.png) no-repeat 0 0;
-}
-
+#upload_list .file .picture_ios6 { background: url(../images/msu_document-image_ios6.png) no-repeat 0 0 }
 /* 引入制图员alex的音乐图标-SLboat Mod */
-#upload_list .file .music {
-  background: url(../images/msu_document-music.png) no-repeat 0 0;
+#upload_list .file .music { background: url(../images/msu_document-music.png) no-repeat 0 0 }
+/* 上传排序按钮 */
+#upload_sort {
+    float: right; /* 靠右 */
+    color: beige; /* 红色 */
 }
 
-/* 上传排序按钮 */
-#upload_sort{
-  float: right; /* 靠右 */
-  color: rgba(235, 82, 112, 0.89); /* 红色 */
+/* css选择框,来自http://csscheckbox.com/ */
+input[type=checkbox].css-checkbox {
+    position: absolute;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
 }
+input[type=checkbox].css-checkbox + label.css-label {
+    padding-left: 20px;
+    height: 15px;
+    display: inline-block;
+    line-height: 15px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    font-size: 15px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+input[type=checkbox].css-checkbox:checked + label.css-label { background-position: 0 -15px }
+
+.css-label { background-image: url(../images/checkbox-lite-plus.png) }

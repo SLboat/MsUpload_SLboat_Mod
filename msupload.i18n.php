@@ -95,7 +95,7 @@ $messages['zh-hans'] = array(
        'msu-upload_all' => '点这里上传所有文件',
        'msu-dropzone' => '把文件带上见识的甲板',   
        'msu-comment' => '由森亮航海见识上传',
-       'msu-sort_files' => '对拖入文件排序', /* 这里是森亮号修改的开始 */
+       'msu-sort_files' => '排序文件', /* 这里是森亮号修改的开始 */
 	   'msu-insert_music' => '插入音频见识', // SLBoat: 只是插入文件
 );
 
