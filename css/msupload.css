@@ -48,11 +48,11 @@
 
 #upload_drop{
   margin:3px;
-  /* V9.4 ×÷ÕßÉèÖÃÎª5px£¬µ«ÊÇËü¿´ÆğÀ´Ì«ºñÁË */
+  /* V9.4 ä½œè€…è®¾ç½®ä¸º5pxï¼Œä½†æ˜¯å®ƒçœ‹èµ·æ¥å¤ªåšäº† */
   padding:2px;
   border:1px dashed #ddd;
   text-align:center;
-  /* Ô­Ê¼ÊÇ20px,µ«ÊÇ»»³Éauto,¿´ÆğÀ´¸ü´óÆøÒ»Ğ© */
+  /* åŸå§‹æ˜¯20px,ä½†æ˜¯æ¢æˆauto,çœ‹èµ·æ¥æ›´å¤§æ°”ä¸€äº› */
   height:auto;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   color: #fff;
