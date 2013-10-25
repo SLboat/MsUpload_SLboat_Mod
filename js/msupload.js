@@ -39,10 +39,10 @@ function createUpload(wikiEditor){
 	    var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
 	    var bottom_div = $(document.createElement("div")).attr("id","upload_bottom").appendTo(upload_div).hide(); 
 	    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(bottom_div).hide();
-	    var spacer1 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
+	    var spacer1 = $(document.createElement("span")).attr("class", "spacer spacer1").appendTo(bottom_div).hide();
 		// SLboat: 插入的顺序至关重要
     	var clean_all = $(document.createElement("a")).attr("id","clean_all").text(mw.msg('msu-clean_all')).appendTo(bottom_div).hide();	
-		var spacer2 = $(document.createElement("span")).attr("class", "spacer").appendTo(bottom_div).hide();
+		var spacer2 = $(document.createElement("span")).attr("class", "spacer spacer2").appendTo(bottom_div).hide();
 		var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(bottom_div).hide();
 		var upload_drop = $(document.createElement("div")).attr("id","upload_drop").insertAfter(status_div).hide();
 
@@ -325,16 +325,19 @@ function createUpload(wikiEditor){
         	} else {
         		start_button.text(mw.msg('msu-upload_all')).show();
         	} 
-        	
-        	spacer1.show();	
+
+        	//spacer1.show();	
 	       	
        } else { //0 files in list
          	start_button.hide();
-         	spacer1.hide();	
+         	//spacer1.hide();	
         }  
        
        if(gal_len >= 2){ 
-	    	spacer2.show();	
+	    	if (file_len > 0){
+	    		spacer2.show();	 //如果同时都存在,则出现这玩意
+	    	}
+	    	// spacer2.show();	 //旧的方式一直出现
 	    	gallery_insert.show();
 	    	bottom_div.show();
 	   	}else{
