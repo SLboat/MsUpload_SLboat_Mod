@@ -13,6 +13,7 @@
 }
 
 /* css选择框,来自http://csscheckbox.com/ */
+
 input[type=checkbox].css-checkbox {
     position: absolute;
     overflow: hidden;
@@ -23,6 +24,7 @@ input[type=checkbox].css-checkbox {
     padding: 0;
     border: 0;
 }
+
 input[type=checkbox].css-checkbox + label.css-label {
     padding-left: 20px;
     height: 15px;
@@ -34,6 +36,7 @@ input[type=checkbox].css-checkbox + label.css-label {
     vertical-align: middle;
     cursor: pointer;
 }
+
 input[type=checkbox].css-checkbox:checked + label.css-label { background-position: 0 -15px }
 
-.css-label { background-image: url(../images/checkbox-lite-plus.png) }
+.css-label { background-image: url(../images/lite-cyan-check.png) }
