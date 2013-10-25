@@ -122,7 +122,7 @@ function createUpload(wikiEditor){
 				/*  森亮号IOS修改
 				* 当为iPad平台的情况下，文件名包含image并且小于7个字符的情况下，进行自动命名文件名
 				* 它的缺陷是它无法再判断是否上传过一样的文件了
-				* 它的默认的名字是 iamge.jpg 9个字符长度
+				* 它的默认的名字是 image.jpg 9个字符长度
 				* @done：简化到一个函数里面-直接交由isIOS函数来处理
 				*/
 				if (isIOS(file.name)){
@@ -395,9 +395,9 @@ function createUpload(wikiEditor){
 };//function
 
 function add_gallery(){ //森亮号守旧的保留这里,不使用难看的相册玩意
-	gallery_text = ":[[Image:"; //第一个单个标签的左边部分
+	gallery_text = ":[[File:"; //第一个单个标签的左边部分
 	//去除BR标记，不再需要
-	gallery_text += gallery_arr.join("]]\n:[[Image:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
+	gallery_text += gallery_arr.join("]]\n:[[File:");//中间的一直在继承，\n是实际的硬回车，php里看起来是这样的
 	gallery_text +=']]';//最后一个标签的右边部分
 	mw.toolbar.insertTags('\n' + gallery_text + '\n', '', '', '');  //或许的，只要tagopen就够了
 }
