@@ -299,7 +299,8 @@ a.hover {
 }
 
 #upload_bottom #upload_files{
-	padding:1px 0px 3px 25px;
+	/* 这里似乎3px在一些情况下会有些低落 */
+	padding:3px 0px 3px 25px;
 	background: url(../images/msu_upload_icon.png) no-repeat 0 0;
 	height:12px;
 }
