@@ -298,10 +298,11 @@ a.hover {
 	font-weight: bold;
 }
 
+/* 重载了这里 */
 #upload_bottom #upload_files{
 	/* 这里似乎3px在一些情况下会有些低落 */
 	padding:3px 0px 3px 25px;
-	background: url(../images/msu_upload_icon.png) no-repeat 0 0;
+	background: url(../images/msu_upload_icon.png) no-repeat 0 center; /* 加入了居中,字体太大就不居中啦 */
 	height:12px;
 }
 

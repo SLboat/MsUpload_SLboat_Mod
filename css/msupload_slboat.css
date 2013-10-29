@@ -14,8 +14,12 @@
 
 /* 清空文件放置到右边 */
 /* float的坏处是啥呢? */
-#clean_all{
+/* 需要提高优先级...使用上级召唤 */
+#upload_div  #clean_all{
 	float: right;
+	background: url(../images/msu_clean_all.png) no-repeat 0 center;
+	padding: 3px 0px 3px 20px;
+	color: tomato;
 }
 
 /* 隐藏掉第二个棍子因为已经到了右边 */
