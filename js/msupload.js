@@ -188,7 +188,10 @@ function createUpload(wikiEditor){
       });
    
      uploader.bind('Error', function(up, err) { // SLboat:出错的时候进行回调处理
-    		
+    		if (!err.file){
+    			console.log ("没办法处理的这样的意外:",err);
+    			return false;
+    		}
         	$('#' + err.file.id + " span.file-warning")
         	.html("Error: " + err.code +", Message: " + err.message + (err.file ? ", File: " + err.file.name : ""));
         	
