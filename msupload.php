@@ -36,7 +36,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
 	'url'  => 'http://see.sl088.com/wiki/%E6%89%A9%E5%B1%95:MsUpload',
 	'descriptionmsg' => 'msu-desc',
-	'version' => '9.5 SLboat Mod',
+	'version' => '9.5.1 SLboat Mod',
 	'author' => '[mailto:msupload@ratin.de info@ratin.de] | [http://www.ratin.de/msupload.html Ratin]',
 );
 
@@ -52,10 +52,11 @@ $wgResourceModules['ext.MsUpload'] = array(
 
         'styles' => array('css/msupload.css','css/msupload_slboat.css'), // SLBoat: 森亮号增加的CSS就放在这里了
         // When your module is loaded, these messages will be available through mw.msg()
-		// 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
+        // 注册的语言字符声明，这里需要增加清除按钮，和清除按钮确认的事件，在末尾 - SLboat Mod
         'messages' => array( 'msu-description', 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-clean_all', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all', 'msu-dropzone', 'msu-comment',  // SLBoat: 这里依然是官方的尾巴部分
-		'msu-clean_confirm','msu-insert_file','msu-insert_music','msu-sort_files'), // SLBoat: 这里是森亮号的Mod了
-		// SLBoat: 依赖进度栏插件，少了可不行
+		                        'msu-clean_confirm','msu-insert_file','msu-insert_music','msu-sort_files'), // SLBoat: 这里是森亮号的Mod了
+
+		    // SLBoat: 依赖进度栏插件，少了可不行
         'dependencies' => array( 'jquery.ui.progressbar' ),
         'localBasePath' => dirname( __FILE__ ),
         'remoteExtPath' => 'MsUpload'
@@ -90,7 +91,7 @@ function MSLSetup() {
 	);
 
 	$msu_vars = json_encode($msu_vars);
-    $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">var msu_vars = $msu_vars;</script>\n" );
+  $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">var msu_vars = $msu_vars;</script>\n" );
   
   return true;
 }
