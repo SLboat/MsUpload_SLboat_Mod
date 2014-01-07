@@ -1,11 +1,19 @@
 /* 森亮号Mod额外的CSS 
  * 为了降低CSS的混乱，这里是额外的修改
  * 而原始的则不去动用它
+ * 注意: 因为这里被RL调用,看起来必须是有[;]来分隔里面的CSS源...
  */
 /* 引入制图员alex的ios图标-SLboat Mod */
-#upload_list .file .picture_ios6 { background: url(../images/msu_document-image_ios6.png) no-repeat 0 0 }
+#upload_list .file .picture_ios6 { 
+	/* 它需要一个分号 */
+	background: url(../images/msu_document-image_ios6.png) no-repeat 0 0;
+}
+
 /* 引入制图员alex的音乐图标-SLboat Mod */
-#upload_list .file .music { background: url(../images/msu_document-music.png) no-repeat 0 0 }
+#upload_list .file .music { 
+	background: url(../images/msu_document-music.png) no-repeat 0 0;
+}
+
 /* 上传排序按钮 */
 #upload_sort {
     float: right; /* 靠右 */
@@ -52,6 +60,10 @@ input[type=checkbox].css-checkbox + label.css-label {
     cursor: pointer;
 }
 
-input[type=checkbox].css-checkbox:checked + label.css-label { background-position: 0 -15px }
+input[type=checkbox].css-checkbox:checked + label.css-label { 
+	background-position: 0 -15px;
+}
 
-.css-label { background-image: url(../images/lite-cyan-check.png) }
+.css-label {
+	background-image: url(../images/lite-cyan-check.png);
+}
