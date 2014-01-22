@@ -1,6 +1,6 @@
 /**
  * mOxie - multi-runtime File API & XMLHttpRequest L2 Polyfill
- * v1.2.0
+ * v1.0.0
  *
  * Copyright 2013, Moxiecode Systems AB
  * Released under GPL License.
@@ -8,7 +8,7 @@
  * License: http://www.plupload.com/license
  * Contributing: http://www.plupload.com/contributing
  *
- * Date: 2014-01-16
+ * Date: 2013-09-23
  */
 /**
  * Compiled inline version. (Library mode)
@@ -252,42 +252,6 @@ define('moxie/core/utils/Basic', [], function() {
 		}
 		callNext(i);
 	};
-
-
-	/**
-	Recieve an array of functions (usually async) to call in parallel, each  function
-	receives a callback as first argument that it should call, when it completes. After 
-	everything is complete, main callback is called. Passing truthy value to the
-	callback as a first argument will interrupt the process and invoke main callback
-	immediately.
-
-	@method inParallel
-	@static
-	@param {Array} queue Array of functions to call in sequence
-	@param {Function} cb Main callback that is called in the end, or in case of erro
-	*/
-	var inParallel = function(queue, cb) {
-		var count = 0, num = queue.length, cbArgs = new Array(num);
-
-		each(queue, function(fn, i) {
-			fn(function(error) {
-				if (error) {
-					return cb(error);
-				}
-				
-				var args = [].slice.call(arguments);
-				args.shift(); // strip error - undefined or not
-
-				cbArgs[i] = args;
-				count++;
-
-				if (count === num) {
-					cbArgs.unshift(null);
-					cb.apply(this, cbArgs);
-				} 
-			});
-		});
-	};
 	
 	
 	/**
@@ -465,7 +429,6 @@ define('moxie/core/utils/Basic', [], function() {
 		each: each,
 		isEmptyObj: isEmptyObj,
 		inSeries: inSeries,
-		inParallel: inParallel,
 		inArray: inArray,
 		arrayDiff: arrayDiff,
 		arrayIntersect: arrayIntersect,
@@ -530,12 +493,15 @@ define("moxie/core/I18n", [
 		 * @return {String} String with replaced tokens
 		 */
 		sprintf: function(str) {
-			var args = [].slice.call(arguments, 1);
+			var args = [].slice.call(arguments, 1), reStr = '';
 
-			return str.replace(/%[a-z]/g, function() {
-				var value = args.shift();
-				return Basic.typeOf(value) !== 'undefined' ? value : '';
+			Basic.each(str.split(/%[a-z]/), function(part) {
+				reStr += part;
+				if (args.length) {
+					reStr += args.shift();
+				}
 			});
+			return reStr;
 		}
 	};
 });
@@ -577,7 +543,7 @@ define("moxie/core/utils/Mime", [
 		"application/json,json," +
 		"audio/mpeg,mp3 mpga mpega mp2," +
 		"audio/x-wav,wav," +
-		"audio/x-m4a,m4a," +
+		"audio/mp4,m4a," +
 		"audio/ogg,oga ogg," +
 		"audio/aiff,aiff aif," +
 		"audio/flac,flac," +
@@ -749,517 +715,108 @@ define("moxie/core/utils/Env", [
 	"moxie/core/utils/Basic"
 ], function(Basic) {
 	
-	// UAParser.js v0.6.2
-	// Lightweight JavaScript-based User-Agent string parser
-	// https://github.com/faisalman/ua-parser-js
-	//
-	// Copyright © 2012-2013 Faisalman <fyzlman@gmail.com>
-	// Dual licensed under GPLv2 & MIT
-
-	var UAParser = (function (undefined) {
-
-	    //////////////
-	    // Constants
-	    /////////////
-
-
-	    var EMPTY       = '',
-	        UNKNOWN     = '?',
-	        FUNC_TYPE   = 'function',
-	        UNDEF_TYPE  = 'undefined',
-	        OBJ_TYPE    = 'object',
-	        MAJOR       = 'major',
-	        MODEL       = 'model',
-	        NAME        = 'name',
-	        TYPE        = 'type',
-	        VENDOR      = 'vendor',
-	        VERSION     = 'version',
-	        ARCHITECTURE= 'architecture',
-	        CONSOLE     = 'console',
-	        MOBILE      = 'mobile',
-	        TABLET      = 'tablet';
-
-
-	    ///////////
-	    // Helper
-	    //////////
-
-
-	    var util = {
-	        has : function (str1, str2) {
-	            return str2.toLowerCase().indexOf(str1.toLowerCase()) !== -1;
-	        },
-	        lowerize : function (str) {
-	            return str.toLowerCase();
-	        }
-	    };
-
-
-	    ///////////////
-	    // Map helper
-	    //////////////
-
-
-	    var mapper = {
-
-	        rgx : function () {
-
-	            // loop through all regexes maps
-	            for (var result, i = 0, j, k, p, q, matches, match, args = arguments; i < args.length; i += 2) {
-
-	                var regex = args[i],       // even sequence (0,2,4,..)
-	                    props = args[i + 1];   // odd sequence (1,3,5,..)
-
-	                // construct object barebones
-	                if (typeof(result) === UNDEF_TYPE) {
-	                    result = {};
-	                    for (p in props) {
-	                        q = props[p];
-	                        if (typeof(q) === OBJ_TYPE) {
-	                            result[q[0]] = undefined;
-	                        } else {
-	                            result[q] = undefined;
-	                        }
-	                    }
-	                }
-
-	                // try matching uastring with regexes
-	                for (j = k = 0; j < regex.length; j++) {
-	                    matches = regex[j].exec(this.getUA());
-	                    if (!!matches) {
-	                        for (p = 0; p < props.length; p++) {
-	                            match = matches[++k];
-	                            q = props[p];
-	                            // check if given property is actually array
-	                            if (typeof(q) === OBJ_TYPE && q.length > 0) {
-	                                if (q.length == 2) {
-	                                    if (typeof(q[1]) == FUNC_TYPE) {
-	                                        // assign modified match
-	                                        result[q[0]] = q[1].call(this, match);
-	                                    } else {
-	                                        // assign given value, ignore regex match
-	                                        result[q[0]] = q[1];
-	                                    }
-	                                } else if (q.length == 3) {
-	                                    // check whether function or regex
-	                                    if (typeof(q[1]) === FUNC_TYPE && !(q[1].exec && q[1].test)) {
-	                                        // call function (usually string mapper)
-	                                        result[q[0]] = match ? q[1].call(this, match, q[2]) : undefined;
-	                                    } else {
-	                                        // sanitize match using given regex
-	                                        result[q[0]] = match ? match.replace(q[1], q[2]) : undefined;
-	                                    }
-	                                } else if (q.length == 4) {
-	                                        result[q[0]] = match ? q[3].call(this, match.replace(q[1], q[2])) : undefined;
-	                                }
-	                            } else {
-	                                result[q] = match ? match : undefined;
-	                            }
-	                        }
-	                        break;
-	                    }
-	                }
-
-	                if(!!matches) break; // break the loop immediately if match found
-	            }
-	            return result;
-	        },
-
-	        str : function (str, map) {
-
-	            for (var i in map) {
-	                // check if array
-	                if (typeof(map[i]) === OBJ_TYPE && map[i].length > 0) {
-	                    for (var j = 0; j < map[i].length; j++) {
-	                        if (util.has(map[i][j], str)) {
-	                            return (i === UNKNOWN) ? undefined : i;
-	                        }
-	                    }
-	                } else if (util.has(map[i], str)) {
-	                    return (i === UNKNOWN) ? undefined : i;
-	                }
-	            }
-	            return str;
-	        }
-	    };
-
-
-	    ///////////////
-	    // String map
-	    //////////////
-
-
-	    var maps = {
-
-	        browser : {
-	            oldsafari : {
-	                major : {
-	                    '1' : ['/8', '/1', '/3'],
-	                    '2' : '/4',
-	                    '?' : '/'
-	                },
-	                version : {
-	                    '1.0'   : '/8',
-	                    '1.2'   : '/1',
-	                    '1.3'   : '/3',
-	                    '2.0'   : '/412',
-	                    '2.0.2' : '/416',
-	                    '2.0.3' : '/417',
-	                    '2.0.4' : '/419',
-	                    '?'     : '/'
-	                }
-	            }
-	        },
-
-	        device : {
-	            sprint : {
-	                model : {
-	                    'Evo Shift 4G' : '7373KT'
-	                },
-	                vendor : {
-	                    'HTC'       : 'APA',
-	                    'Sprint'    : 'Sprint'
-	                }
-	            }
-	        },
-
-	        os : {
-	            windows : {
-	                version : {
-	                    'ME'        : '4.90',
-	                    'NT 3.11'   : 'NT3.51',
-	                    'NT 4.0'    : 'NT4.0',
-	                    '2000'      : 'NT 5.0',
-	                    'XP'        : ['NT 5.1', 'NT 5.2'],
-	                    'Vista'     : 'NT 6.0',
-	                    '7'         : 'NT 6.1',
-	                    '8'         : 'NT 6.2',
-	                    '8.1'       : 'NT 6.3',
-	                    'RT'        : 'ARM'
-	                }
-	            }
-	        }
-	    };
-
-
-	    //////////////
-	    // Regex map
-	    /////////////
-
-
-	    var regexes = {
-
-	        browser : [[
-
-	            // Presto based
-	            /(opera\smini)\/((\d+)?[\w\.-]+)/i,                                 // Opera Mini
-	            /(opera\s[mobiletab]+).+version\/((\d+)?[\w\.-]+)/i,                // Opera Mobi/Tablet
-	            /(opera).+version\/((\d+)?[\w\.]+)/i,                               // Opera > 9.80
-	            /(opera)[\/\s]+((\d+)?[\w\.]+)/i                                    // Opera < 9.80
-	            
-	            ], [NAME, VERSION, MAJOR], [
-
-	            /\s(opr)\/((\d+)?[\w\.]+)/i                                         // Opera Webkit
-	            ], [[NAME, 'Opera'], VERSION, MAJOR], [
-
-	            // Mixed
-	            /(kindle)\/((\d+)?[\w\.]+)/i,                                       // Kindle
-	            /(lunascape|maxthon|netfront|jasmine|blazer)[\/\s]?((\d+)?[\w\.]+)*/i,
-	                                                                                // Lunascape/Maxthon/Netfront/Jasmine/Blazer
-
-	            // Trident based
-	            /(avant\s|iemobile|slim|baidu)(?:browser)?[\/\s]?((\d+)?[\w\.]*)/i,
-	                                                                                // Avant/IEMobile/SlimBrowser/Baidu
-	            /(?:ms|\()(ie)\s((\d+)?[\w\.]+)/i,                                  // Internet Explorer
-
-	            // Webkit/KHTML based
-	            /(rekonq)((?:\/)[\w\.]+)*/i,                                        // Rekonq
-	            /(chromium|flock|rockmelt|midori|epiphany|silk|skyfire|ovibrowser|bolt|iron)\/((\d+)?[\w\.-]+)/i
-	                                                                                // Chromium/Flock/RockMelt/Midori/Epiphany/Silk/Skyfire/Bolt/Iron
-	            ], [NAME, VERSION, MAJOR], [
-
-	            /(trident).+rv[:\s]((\d+)?[\w\.]+).+like\sgecko/i                   // IE11
-	            ], [[NAME, 'IE'], VERSION, MAJOR], [
-
-	            /(yabrowser)\/((\d+)?[\w\.]+)/i                                     // Yandex
-	            ], [[NAME, 'Yandex'], VERSION, MAJOR], [
-
-	            /(comodo_dragon)\/((\d+)?[\w\.]+)/i                                 // Comodo Dragon
-	            ], [[NAME, /_/g, ' '], VERSION, MAJOR], [
-
-	            /(chrome|omniweb|arora|[tizenoka]{5}\s?browser)\/v?((\d+)?[\w\.]+)/i
-	                                                                                // Chrome/OmniWeb/Arora/Tizen/Nokia
-	            ], [NAME, VERSION, MAJOR], [
-
-	            /(dolfin)\/((\d+)?[\w\.]+)/i                                        // Dolphin
-	            ], [[NAME, 'Dolphin'], VERSION, MAJOR], [
-
-	            /((?:android.+)crmo|crios)\/((\d+)?[\w\.]+)/i                       // Chrome for Android/iOS
-	            ], [[NAME, 'Chrome'], VERSION, MAJOR], [
-
-	            /((?:android.+))version\/((\d+)?[\w\.]+)\smobile\ssafari/i          // Android Browser
-	            ], [[NAME, 'Android Browser'], VERSION, MAJOR], [
-
-	            /version\/((\d+)?[\w\.]+).+?mobile\/\w+\s(safari)/i                 // Mobile Safari
-	            ], [VERSION, MAJOR, [NAME, 'Mobile Safari']], [
-
-	            /version\/((\d+)?[\w\.]+).+?(mobile\s?safari|safari)/i              // Safari & Safari Mobile
-	            ], [VERSION, MAJOR, NAME], [
-
-	            /webkit.+?(mobile\s?safari|safari)((\/[\w\.]+))/i                   // Safari < 3.0
-	            ], [NAME, [MAJOR, mapper.str, maps.browser.oldsafari.major], [VERSION, mapper.str, maps.browser.oldsafari.version]], [
-
-	            /(konqueror)\/((\d+)?[\w\.]+)/i,                                    // Konqueror
-	            /(webkit|khtml)\/((\d+)?[\w\.]+)/i
-	            ], [NAME, VERSION, MAJOR], [
-
-	            // Gecko based
-	            /(navigator|netscape)\/((\d+)?[\w\.-]+)/i                           // Netscape
-	            ], [[NAME, 'Netscape'], VERSION, MAJOR], [
-	            /(swiftfox)/i,                                                      // Swiftfox
-	            /(icedragon|iceweasel|camino|chimera|fennec|maemo\sbrowser|minimo|conkeror)[\/\s]?((\d+)?[\w\.\+]+)/i,
-	                                                                                // IceDragon/Iceweasel/Camino/Chimera/Fennec/Maemo/Minimo/Conkeror
-	            /(firefox|seamonkey|k-meleon|icecat|iceape|firebird|phoenix)\/((\d+)?[\w\.-]+)/i,
-	                                                                                // Firefox/SeaMonkey/K-Meleon/IceCat/IceApe/Firebird/Phoenix
-	            /(mozilla)\/((\d+)?[\w\.]+).+rv\:.+gecko\/\d+/i,                    // Mozilla
-
-	            // Other
-	            /(uc\s?browser|polaris|lynx|dillo|icab|doris|amaya|w3m|netsurf|qqbrowser)[\/\s]?((\d+)?[\w\.]+)/i,
-	                                                                                // UCBrowser/Polaris/Lynx/Dillo/iCab/Doris/Amaya/w3m/NetSurf/QQBrowser
-	            /(links)\s\(((\d+)?[\w\.]+)/i,                                      // Links
-	            /(gobrowser)\/?((\d+)?[\w\.]+)*/i,                                  // GoBrowser
-	            /(ice\s?browser)\/v?((\d+)?[\w\._]+)/i,                             // ICE Browser
-	            /(mosaic)[\/\s]((\d+)?[\w\.]+)/i                                    // Mosaic
-	            ], [NAME, VERSION, MAJOR]
-	        ],
-
-	        engine : [[
-
-	            /(presto)\/([\w\.]+)/i,                                             // Presto
-	            /(webkit|trident|netfront|netsurf|amaya|lynx|w3m)\/([\w\.]+)/i,     // WebKit/Trident/NetFront/NetSurf/Amaya/Lynx/w3m
-	            /(khtml|tasman|links)[\/\s]\(?([\w\.]+)/i,                          // KHTML/Tasman/Links
-	            /(icab)[\/\s]([23]\.[\d\.]+)/i                                      // iCab
-	            ], [NAME, VERSION], [
-
-	            /rv\:([\w\.]+).*(gecko)/i                                           // Gecko
-	            ], [VERSION, NAME]
-	        ],
-
-	        os : [[
-
-	            // Windows based
-	            /(windows)\snt\s6\.2;\s(arm)/i,                                     // Windows RT
-	            /(windows\sphone(?:\sos)*|windows\smobile|windows)[\s\/]?([ntce\d\.\s]+\w)/i
-	            ], [NAME, [VERSION, mapper.str, maps.os.windows.version]], [
-	            /(win(?=3|9|n)|win\s9x\s)([nt\d\.]+)/i
-	            ], [[NAME, 'Windows'], [VERSION, mapper.str, maps.os.windows.version]], [
-
-	            // Mobile/Embedded OS
-	            /\((bb)(10);/i                                                      // BlackBerry 10
-	            ], [[NAME, 'BlackBerry'], VERSION], [
-	            /(blackberry)\w*\/?([\w\.]+)*/i,                                    // Blackberry
-	            /(tizen)\/([\w\.]+)/i,                                              // Tizen
-	            /(android|webos|palm\os|qnx|bada|rim\stablet\sos|meego)[\/\s-]?([\w\.]+)*/i
-	                                                                                // Android/WebOS/Palm/QNX/Bada/RIM/MeeGo
-	            ], [NAME, VERSION], [
-	            /(symbian\s?os|symbos|s60(?=;))[\/\s-]?([\w\.]+)*/i                 // Symbian
-	            ], [[NAME, 'Symbian'], VERSION],[
-	            /mozilla.+\(mobile;.+gecko.+firefox/i                               // Firefox OS
-	            ], [[NAME, 'Firefox OS'], VERSION], [
-
-	            // Console
-	            /(nintendo|playstation)\s([wids3portablevu]+)/i,                    // Nintendo/Playstation
-
-	            // GNU/Linux based
-	            /(mint)[\/\s\(]?(\w+)*/i,                                           // Mint
-	            /(joli|[kxln]?ubuntu|debian|[open]*suse|gentoo|arch|slackware|fedora|mandriva|centos|pclinuxos|redhat|zenwalk)[\/\s-]?([\w\.-]+)*/i,
-	                                                                                // Joli/Ubuntu/Debian/SUSE/Gentoo/Arch/Slackware
-	                                                                                // Fedora/Mandriva/CentOS/PCLinuxOS/RedHat/Zenwalk
-	            /(hurd|linux)\s?([\w\.]+)*/i,                                       // Hurd/Linux
-	            /(gnu)\s?([\w\.]+)*/i                                               // GNU
-	            ], [NAME, VERSION], [
-
-	            /(cros)\s[\w]+\s([\w\.]+\w)/i                                       // Chromium OS
-	            ], [[NAME, 'Chromium OS'], VERSION],[
-
-	            // Solaris
-	            /(sunos)\s?([\w\.]+\d)*/i                                           // Solaris
-	            ], [[NAME, 'Solaris'], VERSION], [
-
-	            // BSD based
-	            /\s([frentopc-]{0,4}bsd|dragonfly)\s?([\w\.]+)*/i                   // FreeBSD/NetBSD/OpenBSD/PC-BSD/DragonFly
-	            ], [NAME, VERSION],[
-
-	            /(ip[honead]+)(?:.*os\s*([\w]+)*\slike\smac|;\sopera)/i             // iOS
-	            ], [[NAME, 'iOS'], [VERSION, /_/g, '.']], [
-
-	            /(mac\sos\sx)\s?([\w\s\.]+\w)*/i                                    // Mac OS
-	            ], [NAME, [VERSION, /_/g, '.']], [
-
-	            // Other
-	            /(haiku)\s(\w+)/i,                                                  // Haiku
-	            /(aix)\s((\d)(?=\.|\)|\s)[\w\.]*)*/i,                               // AIX
-	            /(macintosh|mac(?=_powerpc)|plan\s9|minix|beos|os\/2|amigaos|morphos|risc\sos)/i,
-	                                                                                // Plan9/Minix/BeOS/OS2/AmigaOS/MorphOS/RISCOS
-	            /(unix)\s?([\w\.]+)*/i                                              // UNIX
-	            ], [NAME, VERSION]
-	        ]
-	    };
-
-
-	    /////////////////
-	    // Constructor
-	    ////////////////
-
-
-	    var UAParser = function (uastring) {
-
-	        var ua = uastring || ((window && window.navigator && window.navigator.userAgent) ? window.navigator.userAgent : EMPTY);
-
-	        this.getBrowser = function () {
-	            return mapper.rgx.apply(this, regexes.browser);
-	        };
-	        this.getEngine = function () {
-	            return mapper.rgx.apply(this, regexes.engine);
-	        };
-	        this.getOS = function () {
-	            return mapper.rgx.apply(this, regexes.os);
-	        };
-	        this.getResult = function() {
-	            return {
-	                ua      : this.getUA(),
-	                browser : this.getBrowser(),
-	                engine  : this.getEngine(),
-	                os      : this.getOS()
-	            };
-	        };
-	        this.getUA = function () {
-	            return ua;
-	        };
-	        this.setUA = function (uastring) {
-	            ua = uastring;
-	            return this;
-	        };
-	        this.setUA(ua);
-	    };
-
-	    return new UAParser().getResult();
-	})();
-
-
-	function version_compare(v1, v2, operator) {
-	  // From: http://phpjs.org/functions
-	  // +      original by: Philippe Jausions (http://pear.php.net/user/jausions)
-	  // +      original by: Aidan Lister (http://aidanlister.com/)
-	  // + reimplemented by: Kankrelune (http://www.webfaktory.info/)
-	  // +      improved by: Brett Zamir (http://brett-zamir.me)
-	  // +      improved by: Scott Baker
-	  // +      improved by: Theriault
-	  // *        example 1: version_compare('8.2.5rc', '8.2.5a');
-	  // *        returns 1: 1
-	  // *        example 2: version_compare('8.2.50', '8.2.52', '<');
-	  // *        returns 2: true
-	  // *        example 3: version_compare('5.3.0-dev', '5.3.0');
-	  // *        returns 3: -1
-	  // *        example 4: version_compare('4.1.0.52','4.01.0.51');
-	  // *        returns 4: 1
-
-	  // Important: compare must be initialized at 0.
-	  var i = 0,
-	    x = 0,
-	    compare = 0,
-	    // vm maps textual PHP versions to negatives so they're less than 0.
-	    // PHP currently defines these as CASE-SENSITIVE. It is important to
-	    // leave these as negatives so that they can come before numerical versions
-	    // and as if no letters were there to begin with.
-	    // (1alpha is < 1 and < 1.1 but > 1dev1)
-	    // If a non-numerical value can't be mapped to this table, it receives
-	    // -7 as its value.
-	    vm = {
-	      'dev': -6,
-	      'alpha': -5,
-	      'a': -5,
-	      'beta': -4,
-	      'b': -4,
-	      'RC': -3,
-	      'rc': -3,
-	      '#': -2,
-	      'p': 1,
-	      'pl': 1
-	    },
-	    // This function will be called to prepare each version argument.
-	    // It replaces every _, -, and + with a dot.
-	    // It surrounds any nonsequence of numbers/dots with dots.
-	    // It replaces sequences of dots with a single dot.
-	    //    version_compare('4..0', '4.0') == 0
-	    // Important: A string of 0 length needs to be converted into a value
-	    // even less than an unexisting value in vm (-7), hence [-8].
-	    // It's also important to not strip spaces because of this.
-	    //   version_compare('', ' ') == 1
-	    prepVersion = function (v) {
-	      v = ('' + v).replace(/[_\-+]/g, '.');
-	      v = v.replace(/([^.\d]+)/g, '.$1.').replace(/\.{2,}/g, '.');
-	      return (!v.length ? [-8] : v.split('.'));
-	    },
-	    // This converts a version component to a number.
-	    // Empty component becomes 0.
-	    // Non-numerical component becomes a negative number.
-	    // Numerical component becomes itself as an integer.
-	    numVersion = function (v) {
-	      return !v ? 0 : (isNaN(v) ? vm[v] || -7 : parseInt(v, 10));
-	    };
-
-	  v1 = prepVersion(v1);
-	  v2 = prepVersion(v2);
-	  x = Math.max(v1.length, v2.length);
-	  for (i = 0; i < x; i++) {
-	    if (v1[i] == v2[i]) {
-	      continue;
-	    }
-	    v1[i] = numVersion(v1[i]);
-	    v2[i] = numVersion(v2[i]);
-	    if (v1[i] < v2[i]) {
-	      compare = -1;
-	      break;
-	    } else if (v1[i] > v2[i]) {
-	      compare = 1;
-	      break;
-	    }
-	  }
-	  if (!operator) {
-	    return compare;
-	  }
-
-	  // Important: operator is CASE-SENSITIVE.
-	  // "No operator" seems to be treated as "<."
-	  // Any other values seem to make the function return null.
-	  switch (operator) {
-	  case '>':
-	  case 'gt':
-	    return (compare > 0);
-	  case '>=':
-	  case 'ge':
-	    return (compare >= 0);
-	  case '<=':
-	  case 'le':
-	    return (compare <= 0);
-	  case '==':
-	  case '=':
-	  case 'eq':
-	    return (compare === 0);
-	  case '<>':
-	  case '!=':
-	  case 'ne':
-	    return (compare !== 0);
-	  case '':
-	  case '<':
-	  case 'lt':
-	    return (compare < 0);
-	  default:
-	    return null;
-	  }
+	var browser = [{
+			s1: navigator.userAgent,
+			s2: "Android",
+			id: "Android Browser", // default or Dolphin
+			sv: "Version" 
+		},{
+			s1: navigator.userAgent, // string
+			s2: "Chrome", // substring
+			id: "Chrome" // identity
+		},{
+			s1: navigator.vendor,
+			s2: "Apple",
+			id: "Safari",
+			sv: "Version" // version
+		},{
+			prop: window.opera && window.opera.buildNumber,
+			id: "Opera",
+			sv: "Version"
+		},{
+			s1: navigator.vendor,
+			s2: "KDE",
+			id: "Konqueror"
+		},{
+			s1: navigator.userAgent,
+			s2: "Firefox",
+			id: "Firefox"
+		},{
+			s1: navigator.vendor,
+			s2: "Camino",
+			id: "Camino"
+		},{
+			// for newer Netscapes (6+)
+			s1: navigator.userAgent,
+			s2: "Netscape",
+			id: "Netscape"
+		},{
+			s1: navigator.userAgent,
+			s2: "MSIE",
+			id: "IE",
+			sv: "MSIE"
+		},{
+			s1: navigator.userAgent,
+			s2: "Gecko",
+			id: "Mozilla",
+			sv: "rv"
+		}],
+
+		os = [{
+			s1: navigator.platform,
+			s2: "Win",
+			id: "Windows"
+		},{
+			s1: navigator.platform,
+			s2: "Mac",
+			id: "Mac"
+		},{
+			s1: navigator.userAgent,
+			s2: "iPhone",
+			id: "iOS"
+		},{
+			s1: navigator.userAgent,
+			s2: "iPad",
+			id: "iOS"
+		},{
+			s1: navigator.userAgent,
+			s2: "Android",
+			id: "Android"
+		},{
+			s1: navigator.platform,
+			s2: "Linux",
+			id: "Linux"
+		}]
+		, version;
+
+	function getStr(data) {
+		var str, prop;
+		
+		for (var i = 0; i < data.length; i++)	{
+			str = data[i].s1;
+			prop = data[i].prop;
+			version = data[i].sv || data[i].id;
+			
+			if (str) {
+				if (str.indexOf(data[i].s2) != -1) {
+					return data[i].id;
+				}
+			} else if (prop) {
+				return data[i].id;
+			}
+		}
 	}
+	
+	
+	function getVer(str) {
+		var index = str.indexOf(version);
 
+		if (index == -1) {
+			return;
+		}
+
+		return parseFloat(str.substring(index + version.length + 1));
+	}
 
 	var can = (function() {
 		var caps = {
@@ -1294,7 +851,7 @@ define("moxie/core/utils/Env", [
 					try {
 						if (Basic.inArray(responseType, ['', 'text', 'document']) !== -1) {
 							return true;
-						} else if (window.XMLHttpRequest) {
+						} else if (window.XMLHttpRequest){
 							var xhr = new XMLHttpRequest();
 							xhr.open('get', '/'); // otherwise Gecko throws an exception
 							if ('responseType' in xhr) {
@@ -1346,25 +903,15 @@ define("moxie/core/utils/Env", [
 		};
 	}());
 
-
 	var Env = {
 		can: can,
-		
-		browser: UAParser.browser.name,
-		version: parseFloat(UAParser.browser.major),
-		os: UAParser.os.name, // everybody intuitively types it in a lowercase for some reason
-		osVersion: UAParser.os.version,
-
-		verComp: version_compare,
-		
+		browser: getStr(browser),
+		version: getVer(navigator.userAgent) || getVer(navigator.appVersion),
+		OS: getStr(os),
 		swf_url: "../flash/Moxie.swf",
 		xap_url: "../silverlight/Moxie.xap",
 		global_event_dispatcher: "moxie.core.EventTarget.instance.dispatchEvent"
 	};
-
-	// for backward compatibility
-	// @deprecated Use `Env.os` instead
-	Env.OS = Env.os;
 
 	return Env;
 });
@@ -1395,6 +942,7 @@ define('moxie/core/utils/Dom', ['moxie/core/utils/Env'], function(Env) {
 		if (typeof id !== 'string') {
 			return id;
 		}
+
 		return document.getElementById(id);
 	};
 
@@ -1407,11 +955,14 @@ define('moxie/core/utils/Dom', ['moxie/core/utils/Env'], function(Env) {
 	@param {String} name Class name
 	*/
 	var hasClass = function(obj, name) {
-		if (!obj.className) {
+		var regExp;
+
+		if (obj.className === '') {
 			return false;
 		}
 
-		var regExp = new RegExp("(^|\\s+)"+name+"(\\s+|$)");
+		regExp = new RegExp("(^|\\s+)"+name+"(\\s+|$)");
+
 		return regExp.test(obj.className);
 	};
 
@@ -1425,7 +976,7 @@ define('moxie/core/utils/Dom', ['moxie/core/utils/Env'], function(Env) {
 	*/
 	var addClass = function(obj, name) {
 		if (!hasClass(obj, name)) {
-			obj.className = !obj.className ? name : obj.className.replace(/\s+$/, '') + ' ' + name;
+			obj.className = obj.className === '' ? name : obj.className.replace(/\s+$/, '') + ' ' + name;
 		}
 	};
 
@@ -1438,12 +989,11 @@ define('moxie/core/utils/Dom', ['moxie/core/utils/Env'], function(Env) {
 	@param {String} name Class name
 	*/
 	var removeClass = function(obj, name) {
-		if (obj.className) {
-			var regExp = new RegExp("(^|\\s+)"+name+"(\\s+|$)");
-			obj.className = obj.className.replace(regExp, function($0, $1, $2) {
-				return $1 === ' ' && $2 === ' ' ? ' ' : '';
-			});
-		}
+		var regExp = new RegExp("(^|\\s+)"+name+"(\\s+|$)");
+
+		obj.className = obj.className.replace(regExp, function($0, $1, $2) {
+			return $1 === ' ' && $2 === ' ' ? ' ' : '';
+		});
 	};
 
 	/**
@@ -1858,7 +1408,7 @@ define('moxie/core/EventTarget', [
 			@return {Boolean} true by default and false if any handler returned false
 			*/
 			dispatchEvent: function(type) {
-				var uid, list, args, tmpEvt, evt = {}, result = true, undef;
+				var uid, list, args, tmpEvt, evt = {};
 				
 				if (Basic.typeOf(type) !== 'string') {
 					// we can't use original object directly (because of Silverlight)
@@ -1867,7 +1417,7 @@ define('moxie/core/EventTarget', [
 					if (Basic.typeOf(tmpEvt.type) === 'string') {
 						type = tmpEvt.type;
 
-						if (tmpEvt.total !== undef && tmpEvt.loaded !== undef) { // progress event
+						if (tmpEvt.total && tmpEvt.loaded) { // progress event
 							evt.total = tmpEvt.total;
 							evt.loaded = tmpEvt.loaded;
 						}
@@ -1921,12 +1471,10 @@ define('moxie/core/EventTarget', [
 						}
 					});
 					if (queue.length) {
-						Basic.inSeries(queue, function(err) {
-							result = !err;
-						});
+						Basic.inSeries(queue);
 					}
 				}
-				return result;
+				return true;
 			},
 			
 			/**
@@ -1966,7 +1514,7 @@ define('moxie/core/EventTarget', [
 			@protected
 			*/
 			trigger: function() {
-				return this.dispatchEvent.apply(this, arguments);
+				this.dispatchEvent.apply(this, arguments);
 			},
 			
 			
@@ -2211,9 +1759,9 @@ define('moxie/runtime/Runtime', [
 	@param {String} type Sanitized name of the runtime
 	@param {Object} [caps] Set of capabilities that differentiate specified runtime
 	@param {Object} [modeCaps] Set of capabilities that do require specific operational mode
-	@param {String} [preferredMode='browser'] Preferred operational mode to choose if no required capabilities were requested
+	@param {String} [defaultMode='browser'] Default operational mode to choose if no required capabilities were requested
 	*/
-	function Runtime(options, type, caps, modeCaps, preferredMode) {
+	function Runtime(options, type, caps, modeCaps, defaultMode) {
 		/**
 		Dispatched when runtime is initialized and ready.
 		Results in RuntimeInit on a connected component.
@@ -2231,10 +1779,67 @@ define('moxie/runtime/Runtime', [
 		var self = this
 		, _shim
 		, _uid = Basic.guid(type + '_')
-		, defaultMode = preferredMode || 'browser'
 		;
 
-		options = options || {};
+
+		/**
+		Runtime (not native one) may operate in browser or client mode.
+		
+		@method _setMode
+		@private
+		@param {Object} [modeCaps] Set of capabilities that do require specific operational mode
+		@param {Object} [defaultMode] The mode to switch to if modeCaps or requiredCaps are empty
+		*/
+		function _setMode(modeCaps, defaultMode) {
+			var mode = null
+			, rc = options && options.required_caps
+			;
+
+			defaultMode = defaultMode || 'browser';
+
+			// mode can be effectively set only once
+			if (this.mode !== null) {
+				return this.mode;
+			}
+
+			if (rc && !Basic.isEmptyObj(modeCaps)) {
+				// loop over required caps and check if they do require the same mode
+				Basic.each(rc, function(value, cap) {
+					if (modeCaps.hasOwnProperty(cap)) {
+						var capMode = modeCaps[cap](value);
+
+						// make sure we always have an array
+						if (typeof(capMode) === 'string') {
+							capMode = [capMode];
+						}
+						
+						if (!mode) {
+							mode = capMode;
+						} else if (!(mode = Basic.arrayIntersect(mode, capMode))) {
+							// if cap requires conflicting mode - runtime cannot fulfill required caps
+							return (mode = false);
+						}
+					}
+				});
+
+				if (mode) {
+					this.mode = Basic.inArray(defaultMode, mode) !== -1 ? defaultMode : mode[0];
+				} else if (mode === false) {
+					this.mode = false;
+				}
+			} 
+			
+			// if mode still not defined
+			if (this.mode === null) { 
+				this.mode = defaultMode;
+			} 
+
+			// once we got the mode, test against all caps
+			if (this.mode && rc && !this.can(rc)) {
+				this.mode = false;
+			}	
+		}
+
 
 		// register runtime in private hash
 		runtimes[_uid] = this;
@@ -2298,12 +1903,7 @@ define('moxie/runtime/Runtime', [
 			// e.g. runtime.can('use_http_method', 'put')
 			use_http_method: true
 		}, caps);
-			
-	
-		// default to the mode that is compatible with preferred caps
-		if (options.preferred_caps) {
-			defaultMode = Runtime.getMode(modeCaps, options.preferred_caps, defaultMode);
-		}
+
 		
 		// small extension factory here (is meant to be extended with actual extensions constructors)
 		_shim = (function() {
@@ -2374,7 +1974,7 @@ define('moxie/runtime/Runtime', [
 			@private
 			@type {String|Boolean} current mode or false, if none possible
 			*/
-			mode: Runtime.getMode(modeCaps, (options.required_caps), defaultMode),
+			mode: null,
 
 			/**
 			id of the DOM container for the runtime (if available)
@@ -2535,10 +2135,7 @@ define('moxie/runtime/Runtime', [
 			}
 		});
 
-		// once we got the mode, test against all caps
-		if (this.mode && options.required_caps && !this.can(options.required_caps)) {
-			this.mode = false;
-		}	
+		_setMode.call(this, modeCaps, defaultMode);
 	}
 
 
@@ -2608,7 +2205,6 @@ define('moxie/runtime/Runtime', [
 			return {
 				uid: runtime.uid,
 				type: runtime.type,
-				mode: runtime.mode,
 				can: function() {
 					return runtime.can.apply(runtime, arguments);
 				}
@@ -2683,53 +2279,6 @@ define('moxie/runtime/Runtime', [
 			}
 		}
 		return null;
-	};
-
-
-	/**
-	Figure out an operational mode for the specified set of capabilities.
-
-	@method getMode
-	@static
-	@param {Object} modeCaps Set of capabilities that depend on particular runtime mode
-	@param {Object} [requiredCaps] Supplied set of capabilities to find operational mode for
-	@param {String|Boolean} [defaultMode='browser'] Default mode to use 
-	@return {String|Boolean} Compatible operational mode
-	*/
-	Runtime.getMode = function(modeCaps, requiredCaps, defaultMode) {
-		var mode = null;
-
-		if (Basic.typeOf(defaultMode) === 'undefined') { // only if not specified
-			defaultMode = 'browser';
-		}
-
-		if (requiredCaps && !Basic.isEmptyObj(modeCaps)) {
-			// loop over required caps and check if they do require the same mode
-			Basic.each(requiredCaps, function(value, cap) {
-				if (modeCaps.hasOwnProperty(cap)) {
-					var capMode = modeCaps[cap](value);
-
-					// make sure we always have an array
-					if (typeof(capMode) === 'string') {
-						capMode = [capMode];
-					}
-					
-					if (!mode) {
-						mode = capMode;
-					} else if (!(mode = Basic.arrayIntersect(mode, capMode))) {
-						// if cap requires conflicting mode - runtime cannot fulfill required caps
-						return (mode = false);
-					}
-				}
-			});
-
-			if (mode) {
-				return Basic.inArray(defaultMode, mode) !== -1 ? defaultMode : mode[0];
-			} else if (mode === false) {
-				return false;
-			}
-		}
-		return defaultMode; 
 	};
 
 
@@ -3378,15 +2927,6 @@ define('moxie/file/FileInput', [
 			@type {String}
 			*/
 			ruid: null,
-
-			/**
-			Unique id of the runtime container. Useful to get hold of it for various manipulations.
-
-			@property shimid
-			@protected
-			@type {String}
-			*/
-			shimid: null,
 			
 			/**
 			Array of selected mOxie.File objects
@@ -3407,7 +2947,6 @@ define('moxie/file/FileInput', [
 
 				self.bind('RuntimeInit', function(e, runtime) {
 					self.ruid = runtime.uid;
-					self.shimid = runtime.shimid;
 
 					self.bind("Ready", function() {
 						self.trigger("Refresh");
@@ -4054,10 +3593,10 @@ define('moxie/core/utils/Url', [], function() {
 	@method parseUrl
 	@for Utils
 	@static
-	@param {String} url Url to parse (defaults to empty string if undefined)
+	@param {String} str Url to parse (defaults to empty string if undefined)
 	@return {Object} Hash containing extracted uri components
 	*/
-	var parseUrl = function(url, currentUrl) {
+	var parseUrl = function(str) {
 		var key = ['source', 'scheme', 'authority', 'userInfo', 'user', 'pass', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'fragment']
 		, i = key.length
 		, ports = {
@@ -4066,7 +3605,7 @@ define('moxie/core/utils/Url', [], function() {
 		}
 		, uri = {}
 		, regex = /^(?:([^:\/?#]+):)?(?:\/\/()(?:(?:()(?:([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?()(?:(()(?:(?:[^?#\/]*\/)*)()(?:[^?#]*))(?:\\?([^#]*))?(?:#(.*))?)/
-		, m = regex.exec(url || '')
+		, m = regex.exec(str || '') // default to empty string if undefined
 		;
 					
 		while (i--) {
@@ -4075,43 +3614,34 @@ define('moxie/core/utils/Url', [], function() {
 			}
 		}
 
-		// when url is relative, we set the origin and the path ourselves
-		if (!uri.scheme) {
-			// come up with defaults
-			if (!currentUrl || typeof(currentUrl) === 'string') {
-				currentUrl = parseUrl(currentUrl || document.location.href);
+		if (/^[^\/]/.test(uri.path) && !uri.scheme) { // when url is relative, we need to figure out the path ourselves
+			var path = document.location.pathname;
+			// if path ends with a filename, strip it
+			if (!/(\/|\/[^\.]+)$/.test(path)) {
+				path = path.replace(/[^\/]+$/, '');
 			}
-
-			uri.scheme = currentUrl.scheme;
-			uri.host = currentUrl.host;
-			uri.port = currentUrl.port;
-
-			var path = '';
-			// for urls without trailing slash we need to figure out the path
-			if (/^[^\/]/.test(uri.path)) {
-				path = currentUrl.path;
-				// if path ends with a filename, strip it
-				if (!/(\/|\/[^\.]+)$/.test(path)) {
-					path = path.replace(/\/[^\/]+$/, '/');
-				} else {
-					path += '/';
-				}
-			}
+			uri.host = document.location.hostname;
 			uri.path = path + (uri.path || ''); // site may reside at domain.com or domain.com/subdir
 		}
 
+		if (!uri.scheme) {
+			uri.scheme = document.location.protocol.replace(/:$/, '');
+		}
+
+		if (!uri.host) {
+			uri.host = document.location.hostname;
+		}
+
 		if (!uri.port) {
-			uri.port = ports[uri.scheme] || 80;
+			uri.port = document.location.port || ports[uri.scheme] || 80;
 		} 
-		
 		uri.port = parseInt(uri.port, 10);
 
 		if (!uri.path) {
 			uri.path = "/";
 		}
-
+											
 		delete uri.source;
-
 		return uri;
 	};
 
@@ -4257,7 +3787,7 @@ define("moxie/xhr/FormData", [
 	@constructor
 	*/
 	function FormData() {
-		var _blob, _fields = [];
+		var _blobField, _fields = {}, _name = "";
 
 		Basic.extend(this, {
 			/**
@@ -4270,29 +3800,29 @@ define("moxie/xhr/FormData", [
 			append: function(name, value) {
 				var self = this, valueType = Basic.typeOf(value);
 
-				// according to specs value might be either Blob or String
 				if (value instanceof Blob) {
-					_blob = {
-						name: name,
-						value: value // unfortunately we can only send single Blob in one FormData
-					};
+					if (_blobField) { 
+						delete _fields[_blobField];
+					}
+					_blobField = name; 
+					_fields[name] = [value]; // unfortunately we can only send single Blob in one FormData
 				} else if ('array' === valueType) {
 					name += '[]';
 
 					Basic.each(value, function(value) {
-						self.append(name, value);
+						self.append.call(self, name, value);
 					});
 				} else if ('object' === valueType) {
 					Basic.each(value, function(value, key) {
-						self.append(name + '[' + key + ']', value);
+						self.append.call(self, name + '[' + key + ']', value);
 					});
-				} else if ('null' === valueType || 'undefined' === valueType || 'number' === valueType && isNaN(value)) {
-					self.append(name, "false");
 				} else {
-					_fields.push({
-						name: name,
-						value: value.toString()
-					});
+					value = value.toString(); // according to specs value might be either Blob or String
+
+					if (!_fields[name]) {
+						_fields[name] = [];
+					} 
+					_fields[name].push(value);
 				}
 			},
 
@@ -4303,7 +3833,7 @@ define("moxie/xhr/FormData", [
 			@return {Boolean}
 			*/
 			hasBlob: function() {
-				return !!this.getBlob();
+				return !!_blobField;
 			},
 
 			/**
@@ -4313,7 +3843,7 @@ define("moxie/xhr/FormData", [
 			@return {Object} Either Blob if found or null
 			*/
 			getBlob: function() {
-				return _blob && _blob.value || null;
+				return _fields[_blobField] && _fields[_blobField][0] || null;
 			},
 
 			/**
@@ -4323,7 +3853,7 @@ define("moxie/xhr/FormData", [
 			@return {String} Either Blob field name or null
 			*/
 			getBlobName: function() {
-				return _blob && _blob.name || null;
+				return _blobField || null;
 			},
 
 			/**
@@ -4333,18 +3863,17 @@ define("moxie/xhr/FormData", [
 			@param {Function} cb Callback to call for each field
 			*/
 			each: function(cb) {
-				Basic.each(_fields, function(field) {
-					cb(field.value, field.name);
+				Basic.each(_fields, function(value, name) {
+					Basic.each(value, function(value) {
+						cb(value, name);
+					});
 				});
-
-				if (_blob) {
-					cb(_blob.value, _blob.name);
-				}
 			},
 
 			destroy: function() {
-				_blob = null;
-				_fields = [];
+				_blobField = null;
+				_name = "";
+				_fields = {};
 			}
 		});
 	}
@@ -4923,9 +4452,9 @@ define("moxie/xhr/XMLHttpRequest", [
 					// 8.2
 					// this.dispatchEvent('loadstart'); // will be dispatched either by native or runtime xhr
 					// 8.3
-					//if (!_upload_complete_flag) {
+					if (!_upload_complete_flag) {
 						// this.upload.dispatchEvent('loadstart');	// will be dispatched either by native or runtime xhr
-					//}
+					}
 				}
 				// 8.5 - Return the send() method call, but continue running the steps in this algorithm.
 				_doXHR.call(this, data);
@@ -5439,6 +4968,329 @@ define("moxie/runtime/Transporter", [
 	return Transporter;
 });
 
+// Included from: src/javascript/core/JSON.js
+
+/**
+ * JSON.js
+ *
+ * Copyright 2013, Moxiecode Systems AB
+ * Released under GPL License.
+ *
+ * License: http://www.plupload.com/license
+ * Contributing: http://www.plupload.com/contributing
+ */
+
+/*jshint smarttabs:true */
+
+define("moxie/core/JSON", [], function() {
+	/**
+	Parse string into the JSON object in a safe way
+	@credits Douglas Crockford: https://github.com/douglascrockford/JSON-js/blob/master/json_parse.js
+
+	@method parse
+	@static
+	@protected
+	@param {Object} obj Object to add property to
+	@param {String} prop Property name
+	@param {Object} desc Set of key-value pairs defining descriptor for the property
+	*/
+	return !!window.JSON && JSON.parse || (function() {
+	    "use strict";
+
+	// This is a function that can parse a JSON text, producing a JavaScript
+	// data structure. It is a simple, recursive descent parser. It does not use
+	// eval or regular expressions, so it can be used as a model for implementing
+	// a JSON parser in other languages.
+
+	// We are defining the function inside of another function to avoid 
+	// creating global variables.
+
+	    var at,     // The index of the current character
+	        ch,     // The current character
+	        escapee = {
+	            '"':  '"',
+	            '\\': '\\',
+	            '/':  '/',
+	            b:    '\b',
+	            f:    '\f',
+	            n:    '\n',
+	            r:    '\r',
+	            t:    '\t'
+	        },
+	        text,
+
+	        error = function (m) {
+
+	// Call error when something is wrong.
+
+	            throw {
+	                name:    'SyntaxError',
+	                message: m,
+	                at:      at,
+	                text:    text
+	            };
+	        },
+
+	        next = function (c) {
+
+	// If a c parameter is provided, verify that it matches the current character.
+
+	            if (c && c !== ch) {
+	                error("Expected '" + c + "' instead of '" + ch + "'");
+	            }
+
+	// Get the next character. When there are no more characters,
+	// return the empty string.
+
+	            ch = text.charAt(at);
+	            at += 1;
+	            return ch;
+	        },
+
+	        number = function () {
+
+	// Parse a number value.
+
+	            var number,
+	                string = '';
+
+	            if (ch === '-') {
+	                string = '-';
+	                next('-');
+	            }
+	            while (ch >= '0' && ch <= '9') {
+	                string += ch;
+	                next();
+	            }
+	            if (ch === '.') {
+	                string += '.';
+	                while (next() && ch >= '0' && ch <= '9') {
+	                    string += ch;
+	                }
+	            }
+	            if (ch === 'e' || ch === 'E') {
+	                string += ch;
+	                next();
+	                if (ch === '-' || ch === '+') {
+	                    string += ch;
+	                    next();
+	                }
+	                while (ch >= '0' && ch <= '9') {
+	                    string += ch;
+	                    next();
+	                }
+	            }
+	            number = +string;
+	            if (!isFinite(number)) {
+	                error("Bad number");
+	            } else {
+	                return number;
+	            }
+	        },
+
+	        string = function () {
+
+	// Parse a string value.
+
+	            var hex,
+	                i,
+	                string = '',
+	                uffff;
+
+	// When parsing for string values, we must look for " and \ characters.
+
+	            if (ch === '"') {
+	                while (next()) {
+	                    if (ch === '"') {
+	                        next();
+	                        return string;
+	                    } else if (ch === '\\') {
+	                        next();
+	                        if (ch === 'u') {
+	                            uffff = 0;
+	                            for (i = 0; i < 4; i += 1) {
+	                                hex = parseInt(next(), 16);
+	                                if (!isFinite(hex)) {
+	                                    break;
+	                                }
+	                                uffff = uffff * 16 + hex;
+	                            }
+	                            string += String.fromCharCode(uffff);
+	                        } else if (typeof escapee[ch] === 'string') {
+	                            string += escapee[ch];
+	                        } else {
+	                            break;
+	                        }
+	                    } else {
+	                        string += ch;
+	                    }
+	                }
+	            }
+	            error("Bad string");
+	        },
+
+	        white = function () {
+
+	// Skip whitespace.
+
+	            while (ch && ch <= ' ') {
+	                next();
+	            }
+	        },
+
+	        word = function () {
+
+	// true, false, or null.
+
+	            switch (ch) {
+	            case 't':
+	                next('t');
+	                next('r');
+	                next('u');
+	                next('e');
+	                return true;
+	            case 'f':
+	                next('f');
+	                next('a');
+	                next('l');
+	                next('s');
+	                next('e');
+	                return false;
+	            case 'n':
+	                next('n');
+	                next('u');
+	                next('l');
+	                next('l');
+	                return null;
+	            }
+	            error("Unexpected '" + ch + "'");
+	        },
+
+	        value,  // Place holder for the value function.
+
+	        array = function () {
+
+	// Parse an array value.
+
+	            var array = [];
+
+	            if (ch === '[') {
+	                next('[');
+	                white();
+	                if (ch === ']') {
+	                    next(']');
+	                    return array;   // empty array
+	                }
+	                while (ch) {
+	                    array.push(value());
+	                    white();
+	                    if (ch === ']') {
+	                        next(']');
+	                        return array;
+	                    }
+	                    next(',');
+	                    white();
+	                }
+	            }
+	            error("Bad array");
+	        },
+
+	        object = function () {
+
+	// Parse an object value.
+
+	            var key,
+	                object = {};
+
+	            if (ch === '{') {
+	                next('{');
+	                white();
+	                if (ch === '}') {
+	                    next('}');
+	                    return object;   // empty object
+	                }
+	                while (ch) {
+	                    key = string();
+	                    white();
+	                    next(':');
+	                    if (Object.hasOwnProperty.call(object, key)) {
+	                        error('Duplicate key "' + key + '"');
+	                    }
+	                    object[key] = value();
+	                    white();
+	                    if (ch === '}') {
+	                        next('}');
+	                        return object;
+	                    }
+	                    next(',');
+	                    white();
+	                }
+	            }
+	            error("Bad object");
+	        };
+
+	    value = function () {
+
+	// Parse a JSON value. It could be an object, an array, a string, a number,
+	// or a word.
+
+	        white();
+	        switch (ch) {
+	        case '{':
+	            return object();
+	        case '[':
+	            return array();
+	        case '"':
+	            return string();
+	        case '-':
+	            return number();
+	        default:
+	            return ch >= '0' && ch <= '9' ? number() : word();
+	        }
+	    };
+
+	// Return the json_parse function. It will have access to all of the above
+	// functions and variables.
+
+	    return function (source, reviver) {
+	        var result;
+
+	        text = source;
+	        at = 0;
+	        ch = ' ';
+	        result = value();
+	        white();
+	        if (ch) {
+	            error("Syntax error");
+	        }
+
+	// If there is a reviver function, we recursively walk the new structure,
+	// passing each name/value pair to the reviver function for possible
+	// transformation, starting with a temporary root object that holds the result
+	// in an empty key. If there is not a reviver function, we simply return the
+	// result.
+
+	        return typeof reviver === 'function' ? (function walk(holder, key) {
+	            var k, v, value = holder[key];
+	            if (value && typeof value === 'object') {
+	                for (k in value) {
+	                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+	                        v = walk(value, k);
+	                        if (v !== undefined) {
+	                            value[k] = v;
+	                        } else {
+	                            delete value[k];
+	                        }
+	                    }
+	                }
+	            }
+	            return reviver.call(holder, key, value);
+	        }({'': result}, '')) : result;
+	    };
+	}());
+
+});
+
 // Included from: src/javascript/image/Image.js
 
 /**
@@ -5464,8 +5316,9 @@ define("moxie/image/Image", [
 	"moxie/core/EventTarget",
 	"moxie/file/Blob",
 	"moxie/file/File",
-	"moxie/core/utils/Encode"
-], function(Basic, Dom, x, FileReaderSync, XMLHttpRequest, Runtime, RuntimeClient, Transporter, Env, EventTarget, Blob, File, Encode) {
+	"moxie/core/utils/Encode",
+	"moxie/core/JSON"
+], function(Basic, Dom, x, FileReaderSync, XMLHttpRequest, Runtime, RuntimeClient, Transporter, Env, EventTarget, Blob, File, Encode, parseJSON) {
 	/**
 	Image preloading and manipulation utility. Additionally it provides access to image meta info (Exif, GPS) and raw binary data.
 
@@ -5892,18 +5745,28 @@ define("moxie/image/Image", [
 				info = this.getRuntime().exec.call(this, 'Image', 'getInfo');
 			}
 
-			this.size = info.size;
-			this.width = info.width;
-			this.height = info.height;
-			this.type = info.type;
-			this.meta = info.meta;
+			if (info) {
+				if (Basic.typeOf(info.meta) === 'string') { // might be a JSON string
+					try {
+						this.meta = parseJSON(info.meta);
+					} catch(ex) {}
+				} else {
+					this.meta = info.meta;
+				}
+			}
+
+			Basic.extend(this, { // info object might be non-enumerable (as returned from SilverLight for example)
+				size: parseInt(info.size, 10),
+				width: parseInt(info.width, 10),
+				height: parseInt(info.height, 10),
+				type: info.type
+			});
 
 			// update file name, only if empty
 			if (this.name === '') {
 				this.name = info.name;
 			}
 		}
-		
 
 		function _load(src) {
 			var srcType = Basic.typeOf(src);
@@ -6085,10 +5948,11 @@ define("moxie/runtime/html5/Runtime", [
 				}()),
 				return_response_headers: True,
 				return_response_type: function(responseType) {
-					if (responseType === 'json' && !!window.JSON) { // we can fake this one even if it's not supported
-						return true;
-					} 
-					return Env.can('return_response_type', responseType);
+					if (responseType === 'json') {
+						return true; // we can fake this one even if it's not supported
+					} else {
+						return Env.can('return_response_type', responseType);
+					}
 				},
 				return_status_code: True,
 				report_upload_progress: Test(window.XMLHttpRequest && new XMLHttpRequest().upload),
@@ -6102,10 +5966,7 @@ define("moxie/runtime/html5/Runtime", [
 					return I.can('select_file') && Env.browser === 'Chrome' && Env.version >= 21;
 				},
 				select_multiple: function() {
-					// it is buggy on Safari Windows and iOS
-					return I.can('select_file') && 
-						!(Env.browser === 'Safari' && Env.os === 'Windows') && 
-						!(Env.os === 'iOS' && Env.verComp(Env.osVersion, "7.0.4", '<'));
+					return I.can('select_file') && !(Env.browser === 'Safari' && Env.OS === 'Windows');
 				},
 				send_binary_string: Test(window.XMLHttpRequest && (new XMLHttpRequest().sendAsBinary || (window.Uint8Array && window.ArrayBuffer))),
 				send_custom_headers: Test(window.XMLHttpRequest),
@@ -6522,10 +6383,7 @@ define("moxie/runtime/html5/file/FileInput", [
 			},
 
 			destroy: function() {
-				var I = this.getRuntime()
-				, shim = I.getShim()
-				, shimContainer = I.getShimContainer()
-				;
+				var I = this.getRuntime(), shimContainer = I.getShimContainer();
 				
 				Events.removeAllEvents(shimContainer, this.uid);
 				Events.removeAllEvents(_options && Dom.get(_options.container), this.uid);
@@ -6534,10 +6392,7 @@ define("moxie/runtime/html5/file/FileInput", [
 				if (shimContainer) {
 					shimContainer.innerHTML = '';
 				}
-
-				shim.removeInstance(this.uid);
-
-				_files = _options = shimContainer = shim = null;
+				_files = _options = null;
 			}
 		});
 	}
@@ -6594,7 +6449,11 @@ define("moxie/runtime/html5/file/FileDrop", [
 
 					// Chrome 21+ accepts folders via Drag'n'Drop
 					if (e.dataTransfer.items && e.dataTransfer.items[0].webkitGetAsEntry) {
-						_readItems(e.dataTransfer.items, function() {
+						var entries = [];
+						Basic.each(e.dataTransfer.items, function(item) {
+							entries.push(item.webkitGetAsEntry());
+						});
+						_readEntries(entries, function() {
 							comp.trigger("drop");
 						});
 					} else {
@@ -6643,32 +6502,6 @@ define("moxie/runtime/html5/file/FileDrop", [
 		function _isAcceptable(file) {
 			var ext = Mime.getFileExtension(file.name);
 			return !ext || !_allowedExts.length || Basic.inArray(ext, _allowedExts) !== -1;
-		}
-
-
-		function _readItems(items, cb) {
-			var entries = [];
-			Basic.each(items, function(item) {
-				var entry = item.webkitGetAsEntry();
-				// Address #998 (https://code.google.com/p/chromium/issues/detail?id=332579)
-				if (entry) {
-					// file() fails on OSX when the filename contains a special character (e.g. umlaut): see #61
-					if (entry.isFile) {
-						var file = item.getAsFile();
-						if (_isAcceptable(file)) {
-							_files.push(file);
-						}
-					} else {
-						entries.push(entry);
-					}
-				}
-			});
-
-			if (entries.length) {
-				_readEntries(entries, cb);
-			} else {
-				cb();
-			}
 		}
 
 
@@ -6834,12 +6667,12 @@ define("moxie/runtime/html5/xhr/XMLHttpRequest", [
 	"moxie/file/Blob",
 	"moxie/xhr/FormData",
 	"moxie/core/Exceptions",
-	"moxie/core/utils/Env"
-], function(extensions, Basic, Mime, Url, File, Blob, FormData, x, Env) {
+	"moxie/core/utils/Env",
+	"moxie/core/JSON"
+], function(extensions, Basic, Mime, Url, File, Blob, FormData, x, Env, parseJSON) {
 	
 	function XMLHttpRequest() {
-		var self = this
-		, _xhr
+		var _xhr
 		, _filename
 		;
 
@@ -7048,7 +6881,7 @@ define("moxie/runtime/html5/xhr/XMLHttpRequest", [
 
 						case 'json':
 							if (!Env.can('return_response_type', 'json')) {
-								return _xhr.status === 200 && !!window.JSON ? JSON.parse(_xhr.responseText) : null;
+								return _xhr.status === 200 ? parseJSON(_xhr.responseText) : null;
 							}
 							return _xhr.response;
 
@@ -7164,7 +6997,7 @@ define("moxie/runtime/html5/xhr/XMLHttpRequest", [
 					// Build RFC2388 blob
 					multipart += dashdash + boundary + crlf +
 						'Content-Disposition: form-data; name="' + name + '"; filename="' + unescape(encodeURIComponent(value.name || 'blob')) + '"' + crlf +
-						'Content-Type: ' + (value.type || 'application/octet-stream') + crlf + crlf +
+						'Content-Type: ' + value.type + crlf + crlf +
 						value.getSource() + crlf;
 				} else {
 					multipart += dashdash + boundary + crlf +
@@ -8403,12 +8236,12 @@ define("moxie/runtime/html5/image/Image", [
 	"moxie/core/utils/Basic",
 	"moxie/core/Exceptions",
 	"moxie/core/utils/Encode",
-	"moxie/file/File",
+	"moxie/file/Blob",
 	"moxie/runtime/html5/image/ImageInfo",
 	"moxie/runtime/html5/image/MegaPixel",
 	"moxie/core/utils/Mime",
 	"moxie/core/utils/Env"
-], function(extensions, Basic, x, Encode, File, ImageInfo, MegaPixel, Mime, Env) {
+], function(extensions, Basic, x, Encode, Blob, ImageInfo, MegaPixel, Mime, Env) {
 	
 	function HTML5Image() {
 		var me = this
@@ -8446,7 +8279,7 @@ define("moxie/runtime/html5/image/Image", [
 			loadFromImage: function(img, exact) {
 				this.meta = img.meta;
 
-				_blob = new File(null, {
+				_blob = new Blob(null, {
 					name: img.name,
 					size: img.size,
 					type: img.type
@@ -8490,8 +8323,7 @@ define("moxie/runtime/html5/image/Image", [
 					// if different mime type requested prepare image for conversion
 					_downsize.call(this, this.width, this.height, false);
 				}
-				return new File(null, {
-					name: _blob.name || '',
+				return new Blob(null, {
 					type: type,
 					data: me.getAsBinaryString.call(this, type, quality)
 				});
@@ -8634,27 +8466,18 @@ define("moxie/runtime/html5/image/Image", [
 		}
 
 		function _downsize(width, height, crop, preserveHeaders) {
-			var self = this
-			, scale
-			, mathFn
-			, x = 0
-			, y = 0
-			, img
-			, destWidth
-			, destHeight
-			, orientation
-			;
+			var self = this, ctx, scale, mathFn, x, y, img, imgWidth, imgHeight, orientation;
 
-			_preserveHeaders = preserveHeaders; // we will need to check this on export (see getAsBinaryString())
+			_preserveHeaders = preserveHeaders; // we will need to check this on export
 
 			// take into account orientation tag
 			orientation = (this.meta && this.meta.tiff && this.meta.tiff.Orientation) || 1;
 
 			if (Basic.inArray(orientation, [5,6,7,8]) !== -1) { // values that require 90 degree rotation
 				// swap dimensions
-				var tmp = width;
+				var mem = width;
 				width = height;
-				height = tmp;
+				height = mem;
 			}
 
 			img = _getImg();
@@ -8669,40 +8492,34 @@ define("moxie/runtime/html5/image/Image", [
 				return;
 			}
 
+			imgWidth = Math.round(img.width * scale);
+			imgHeight = Math.round(img.height * scale);
+
 			// prepare canvas if necessary
 			if (!_canvas) {
 				_canvas = document.createElement("canvas");
 			}
 
-			// calculate dimensions of proportionally resized image
-			destWidth = Math.round(img.width * scale);	
-			destHeight = Math.round(img.height * scale);
-
+			ctx = _canvas.getContext('2d');
 
 			// scale image and canvas
 			if (crop) {
 				_canvas.width = width;
 				_canvas.height = height;
-
-				// if dimensions of the resulting image still larger than canvas, center it
-				if (destWidth > width) {
-					x = Math.round((destWidth - width) / 2);
-				}
-
-				if (destHeight > height) {
-					y = Math.round((destHeight - height) / 2);
-				}
 			} else {
-				_canvas.width = destWidth;
-				_canvas.height = destHeight;
+				_canvas.width = imgWidth;
+				_canvas.height = imgHeight;
 			}
 
-			// rotate if required, according to orientation tag
+			// if dimensions of the resulting image still larger than canvas, center it
+			x = imgWidth > _canvas.width ? Math.round((imgWidth - _canvas.width) / 2)  : 0;
+			y = imgHeight > _canvas.height ? Math.round((imgHeight - _canvas.height) / 2) : 0;
+
 			if (!_preserveHeaders) {
 				_rotateToOrientaion(_canvas.width, _canvas.height, orientation);
 			}
 
-			_drawToCanvas.call(this, img, _canvas, -x, -y, destWidth, destHeight);
+			_drawToCanvas.call(this, img, _canvas, -x, -y, imgWidth, imgHeight);
 
 			this.width = _canvas.width;
 			this.height = _canvas.height;
@@ -8889,10 +8706,7 @@ define("moxie/runtime/flash/Runtime", [
 			resize_image: Runtime.capTrue,
 			return_response_headers: false,
 			return_response_type: function(responseType) {
-				if (responseType === 'json' && !!window.JSON) {
-					return true;
-				} 
-				return !Basic.arrayDiff(responseType, ['', 'text', 'document']) || I.mode === 'browser';
+				return !Basic.arrayDiff(responseType, ['', 'text', 'json', 'document']) || I.mode === 'browser';
 			},
 			return_status_code: function(code) {
 				return I.mode === 'browser' || !Basic.arrayDiff(code, [200, 404]);
@@ -8955,7 +8769,7 @@ define("moxie/runtime/flash/Runtime", [
 		}, 'client');
 
 
-		// minimal requirement for Flash Player version
+		// minimal requirement Flash Player 10
 		if (getShimVersion() < 10) {
 			this.mode = false; // with falsy mode, runtime won't operable, no matter what the mode was before
 		}
@@ -9259,8 +9073,9 @@ define("moxie/runtime/flash/xhr/XMLHttpRequest", [
 	"moxie/file/File",
 	"moxie/file/FileReaderSync",
 	"moxie/xhr/FormData",
-	"moxie/runtime/Transporter"
-], function(extensions, Basic, Blob, File, FileReaderSync, FormData, Transporter) {
+	"moxie/runtime/Transporter",
+	"moxie/core/JSON"
+], function(extensions, Basic, Blob, File, FileReaderSync, FormData, Transporter, parseJSON) {
 	
 	var XMLHttpRequest = {
 
@@ -9350,20 +9165,24 @@ define("moxie/runtime/flash/xhr/XMLHttpRequest", [
 
 				if ('blob' === responseType) {
 					return blob;
-				}
-
-				try { 
+				} else if (!!~Basic.inArray(responseType, ["", "text"])) {
 					frs = new FileReaderSync();
+					return frs.readAsText(blob);
+				} else if ('arraybuffer' === responseType) {
 
-					if (!!~Basic.inArray(responseType, ["", "text"])) {
-						return frs.readAsText(blob);
-					} else if ('json' === responseType && !!window.JSON) {
-						return JSON.parse(frs.readAsText(blob));
+					// do something
+
+				} else if ('json' === responseType) {
+					frs = new FileReaderSync();
+					
+					try {
+						return parseJSON(frs.readAsText(blob));
+					} catch (ex) {
+						return null;
 					}
-				} finally {
-					blob.destroy();
 				}
 			}
+
 			return null;
 		},
 
@@ -9376,9 +9195,9 @@ define("moxie/runtime/flash/xhr/XMLHttpRequest", [
 			// this.dispatchEvent('progress');
 			this.dispatchEvent('abort');
 
-			//if (!upload_complete_flag) {
+			if (!upload_complete_flag) {
 				// this.dispatchEvent('uploadprogress');
-			//}
+			}
 		}
 	};
 
@@ -9605,13 +9424,7 @@ define("moxie/runtime/silverlight/Runtime", [
 			return_response_headers: function(value) {
 				return value && I.mode === 'client';
 			},
-			return_response_type: function(responseType) {
-				if (responseType !== 'json') {
-					return true;
-				} else {
-					return !!window.JSON;
-				}
-			},
+			return_response_type: Runtime.capTrue,
 			return_status_code: function(code) {
 				return I.mode === 'client' || !Basic.arrayDiff(code, [200, 404]);
 			},
@@ -9945,51 +9758,7 @@ define("moxie/runtime/silverlight/image/Image", [
 	"moxie/core/utils/Basic",
 	"moxie/runtime/flash/image/Image"
 ], function(extensions, Basic, Image) {
-	return (extensions.Image = Basic.extend({}, Image, {
-
-		getInfo: function() {
-			var self = this.getRuntime()
-			, grps = ['tiff', 'exif', 'gps']
-			, info = { meta: {} }
-			, rawInfo = self.shimExec.call(this, 'Image', 'getInfo')
-			;
-
-			if (rawInfo.meta) {
-				Basic.each(grps, function(grp) {
-					var meta = rawInfo.meta[grp]
-					, tag
-					, i
-					, length
-					, value
-					;
-					if (meta && meta.keys) {
-						info.meta[grp] = {};
-						for (i = 0, length = meta.keys.length; i < length; i++) {
-							tag = meta.keys[i];
-							value = meta[tag];
-							if (value) {
-								// convert numbers
-								if (/^(\d|[1-9]\d+)$/.test(value)) { // integer (make sure doesn't start with zero)
-									value = parseInt(value, 10);
-								} else if (/^\d*\.\d+$/.test(value)) { // double
-									value = parseFloat(value);
-								}
-								info.meta[grp][tag] = value;
-							}
-						}
-					}
-				});
-			}
-
-			info.width = parseInt(rawInfo.width, 10);
-			info.height = parseInt(rawInfo.height, 10);
-			info.size = parseInt(rawInfo.size, 10);
-			info.type = rawInfo.type;
-			info.name = rawInfo.name;
-
-			return info;
-		}
-	}));
+	return (extensions.Image = Basic.extend({}, Image));
 });
 
 // Included from: src/javascript/runtime/html4/Runtime.js
@@ -10042,10 +9811,7 @@ define("moxie/runtime/html4/Runtime", [
 			report_upload_progress: false,
 			return_response_headers: false,
 			return_response_type: function(responseType) {
-				if (responseType === 'json' && !!window.JSON) {
-					return true;
-				} 
-				return !!~Basic.inArray(responseType, ['text', 'document', '']);
+				return !!~Basic.inArray(responseType, ['json', 'text', 'document', '']);
 			},
 			return_status_code: function(code) {
 				return !Basic.arrayDiff(code, [200, 404]);
@@ -10064,6 +9830,7 @@ define("moxie/runtime/html4/Runtime", [
 			summon_file_dialog: Test(function() { // yeah... some dirty sniffing here...
 				return (Env.browser === 'Firefox' && Env.version >= 4) ||
 					(Env.browser === 'Opera' && Env.version >= 12) ||
+					(Env.browser === 'IE' && Env.version >= 10) ||
 					!!~Basic.inArray(Env.browser, ['Chrome', 'Safari']);
 			}()),
 			upload_filesize: True,
@@ -10155,7 +9922,7 @@ define("moxie/runtime/html4/file/FileInput", [
 			input = document.createElement('input');
 			input.setAttribute('id', uid);
 			input.setAttribute('type', 'file');
-			input.setAttribute('name', _options.name || 'Filedata');
+			input.setAttribute('name', 'Filedata');
 			input.setAttribute('accept', _mimes.join(','));
 
 			Basic.extend(input.style, {
@@ -10202,10 +9969,8 @@ define("moxie/runtime/html4/file/FileInput", [
 				addInput.call(comp);
 
 				// after file is initialized as o.File, we need to update form and input ids
-				comp.bind('change', function onChange() {
+				comp.bind('change', function() {
 					var input = Dom.get(uid), form = Dom.get(uid + '_form'), file;
-
-					comp.unbind('change', onChange);
 
 					if (comp.files.length && input && form) {
 						file = comp.files[0];
@@ -10239,6 +10004,12 @@ define("moxie/runtime/html4/file/FileInput", [
 			_uid = uid;
 
 			shimContainer = currForm = browseButton = null;
+
+			// trigger ready event asynchronously
+			comp.trigger({
+				type: 'ready',
+				async: true
+			});
 		}
 
 		Basic.extend(this, {
@@ -10294,12 +10065,6 @@ define("moxie/runtime/html4/file/FileInput", [
 				addInput.call(this);
 
 				shimContainer = null;
-
-				// trigger ready event asynchronously
-				comp.trigger({
-					type: 'ready',
-					async: true
-				});
 			},
 
 			getFiles: function() {
@@ -10315,10 +10080,7 @@ define("moxie/runtime/html4/file/FileInput", [
 			},
 
 			destroy: function() {
-				var I = this.getRuntime()
-				, shim = I.getShim()
-				, shimContainer = I.getShimContainer()
-				;
+				var I = this.getRuntime(), shimContainer = I.getShimContainer();
 				
 				Events.removeAllEvents(shimContainer, this.uid);
 				Events.removeAllEvents(_options && Dom.get(_options.container), this.uid);
@@ -10327,10 +10089,7 @@ define("moxie/runtime/html4/file/FileInput", [
 				if (shimContainer) {
 					shimContainer.innerHTML = '';
 				}
-
-				shim.removeInstance(this.uid);
-
-				_uid = _files = _mimes = _options = shimContainer = shim = null;
+				_uid = _files = _mimes = _options = null;
 			}
 		});
 	}
@@ -10385,8 +10144,9 @@ define("moxie/runtime/html4/xhr/XMLHttpRequest", [
 	"moxie/core/Exceptions",
 	"moxie/core/utils/Events",
 	"moxie/file/Blob",
-	"moxie/xhr/FormData"
-], function(extensions, Basic, Dom, Url, x, Events, Blob, FormData) {
+	"moxie/xhr/FormData",
+	"moxie/core/JSON"
+], function(extensions, Basic, Dom, Url, x, Events, Blob, FormData, parseJSON) {
 	
 	function XMLHttpRequest() {
 		var _status, _response, _iframe;
@@ -10468,7 +10228,7 @@ define("moxie/runtime/html4/xhr/XMLHttpRequest", [
 							el = _iframe.contentWindow.document || _iframe.contentDocument || window.frames[_iframe.id].document;
 
 							// try to detect some standard error pages
-							if (/^4(0[0-9]|1[0-7]|2[2346])\s/.test(el.title)) { // test if title starts with 4xx HTTP error
+							if (/^4\d{2}\s/.test(el.title) && el.getElementsByTagName('address').length) { // standard Apache style
 								_status = el.title.replace(/^(\d+).*$/, '$1');
 							} else {
 								_status = 200;
@@ -10546,12 +10306,7 @@ define("moxie/runtime/html4/xhr/XMLHttpRequest", [
 								value : value
 							});
 
-							// make sure that input[type="file"], if it's there, comes last
-							if (input) {
-								form.insertBefore(hidden, input);
-							} else {
-								form.appendChild(hidden);
-							}
+							form.appendChild(hidden);
 						}
 					});
 				}
@@ -10571,9 +10326,9 @@ define("moxie/runtime/html4/xhr/XMLHttpRequest", [
 			getResponse: function(responseType) {
 				if ('json' === responseType) {
 					// strip off <pre>..</pre> tags that might be enclosing the response
-					if (Basic.typeOf(_response) === 'string' && !!window.JSON) {
+					if (Basic.typeOf(_response) === 'string') {
 						try {
-							return JSON.parse(_response.replace(/^\s*<pre[^>]*>/, '').replace(/<\/pre>\s*$/, ''));
+							return parseJSON(_response.replace(/^\s*<pre[^>]*>/, '').replace(/<\/pre>\s*$/, ''));
 						} catch (ex) {
 							return null;
 						}
@@ -10631,7 +10386,7 @@ define("moxie/runtime/html4/image/Image", [
 	return (extensions.Image = Image);
 });
 
-expose(["moxie/core/utils/Basic","moxie/core/I18n","moxie/core/utils/Mime","moxie/core/utils/Env","moxie/core/utils/Dom","moxie/core/Exceptions","moxie/core/EventTarget","moxie/core/utils/Encode","moxie/runtime/Runtime","moxie/runtime/RuntimeClient","moxie/file/Blob","moxie/file/File","moxie/file/FileInput","moxie/file/FileDrop","moxie/runtime/RuntimeTarget","moxie/file/FileReader","moxie/core/utils/Url","moxie/file/FileReaderSync","moxie/xhr/FormData","moxie/xhr/XMLHttpRequest","moxie/runtime/Transporter","moxie/image/Image","moxie/core/utils/Events"]);
+expose(["moxie/core/utils/Basic","moxie/core/I18n","moxie/core/utils/Mime","moxie/core/utils/Env","moxie/core/utils/Dom","moxie/core/Exceptions","moxie/core/EventTarget","moxie/core/utils/Encode","moxie/runtime/Runtime","moxie/runtime/RuntimeClient","moxie/file/Blob","moxie/file/File","moxie/file/FileInput","moxie/file/FileDrop","moxie/runtime/RuntimeTarget","moxie/file/FileReader","moxie/core/utils/Url","moxie/file/FileReaderSync","moxie/xhr/FormData","moxie/xhr/XMLHttpRequest","moxie/runtime/Transporter","moxie/core/JSON","moxie/image/Image","moxie/core/utils/Events"]);
 })(this);/**
  * o.js
  *
