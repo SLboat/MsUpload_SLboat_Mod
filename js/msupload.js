@@ -1,20 +1,26 @@
 var gallery_arr = new Array(); /* 全局的插入数组呢 */
 
-$(document).ready(function () { //jquery      
-/* Check if we are in edit mode and the required modules are available and then customize the toolbar */
-	if ( $.inArray( mw.config.get( 'wgAction' ), ['edit', 'submit'] ) !== -1 ) {	//注入工具栏
-	//mw.loader.using( 'user.options', function () { //V9.5.1这里被移除了
-	if ( mw.user.options.get('usebetatoolbar') ) {			
-    	mw.loader.using( 'ext.wikiEditor.toolbar', function () {
-    		if ($.wikiEditor.isSupported($.wikiEditor.modules.toolbar)){ /* 在IOS它可能不会工作!即便设置了工作 */
-    	 		createUpload(true); //创建现代工具栏按钮
-    	 	}else{
-    	 		createUpload(false); //fallback回到旧工作栏
-    	 	}
-    	 });
-	}else{ createUpload(false); }	//创建经典工具栏
-	//});
-	};
+var customizeToolbar = function() {
+	/* Your code goes here */
+	if ($.wikiEditor.isSupported($.wikiEditor.modules.toolbar)){ /* 在IOS它可能不会工作!即便设置了工作 */
+		createUpload(true); //创建现代工具栏按钮
+	}else{
+		createUpload(false); //fallback回到旧工作栏
+	}
+};
+
+$( function () { //jquery      
+	/* Check if we are in edit mode and the required modules are available and then customize the toolbar */
+	if ( $.inArray( mw.config.get( 'wgAction' ), [ 'edit', 'submit' ] ) !== -1 ) {
+		mw.loader.using( 'user.options', function () {
+			// This can be the string "0" if the user disabled the preference ([[phab:T54542#555387]])
+			if ( mw.user.options.get( 'usebetatoolbar' ) == 1 ) {
+				$.when(
+					mw.loader.using( 'ext.wikiEditor.toolbar' ), $.ready
+				).then( customizeToolbar );
+			}
+		} );
+	}
 });
 
 function createUpload(wikiEditor){
