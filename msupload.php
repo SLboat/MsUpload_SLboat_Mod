@@ -70,7 +70,9 @@ function MSLSetup() {
   //load module
   $wgOut->addModules( 'ext.MsUpload' );
   
-  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSU_debug, $wgMSU_ImgParams, $wgMSU_UseDragDrop;
+  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSU_debug, $wgMSU_ImgParams, $wgMSU_UseDragDrop, $wgFileExtensions;
+
+  $wgOut->addJsConfigVars( array('wgFileExtensions' => array_values( array_unique( $wgFileExtensions ) ),) );
 
   $use_MsLinks = 'false';
   $wgMSU_SortFiles = 'true'; //在这里我临时的开启它

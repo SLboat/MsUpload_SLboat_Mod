@@ -411,7 +411,7 @@ function check_extension(file,uploader){
         file.li.loading.show();
 		file.extension = file.name.split('.').pop().toLowerCase(); // SLboat:获得后缀类型，看起来被附加到了一个新属性里哦
 
-		if($.inArray(file.extension, wgFileExtensions) != -1) { // SLboat:有效文件类型
+		if($.inArray(file.extension, mw.config.get('wgFileExtensions')) != -1) { // SLboat:有效文件类型
 		    
 		    switch(file.extension) {
 
@@ -477,7 +477,7 @@ function check_extension(file,uploader){
 				uploader.refresh();  // SLboat: 刷新上传控件
 			});
 
-            file_error(uploader,file,mw.msg('msu-ext_not_allowed')+' '+wgFileExtensions.join(','));
+            file_error(uploader,file,mw.msg('msu-ext_not_allowed')+' '+mw.config.get('wgFileExtensions').join(','));
 
       }//else
 }
